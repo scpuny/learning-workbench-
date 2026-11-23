@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>孩子学习工作台 · 需求方案 v1.5</title>
+<title>孩子学习工作台 · 需求方案 v1.6</title>
 <style>
   :root{
     --bg:#f6f7f9;
@@ -123,7 +123,7 @@
 <div class="layout">
 <aside class="sidebar">
   <div class="brand">孩子学习工作台</div>
-  <div class="brand-sub">需求方案 · v1.5</div>
+  <div class="brand-sub">需求方案 · v1.6</div>
   <nav>
     <a class="top" href="#s1">1. 项目概述</a>
     <a class="sub" href="#s1d">1.4 默认配置基线</a>
@@ -154,7 +154,7 @@
   <h1>孩子学习工作台 · 需求方案</h1>
   <p>双端协同的家庭学习闭环管理：布置 → 执行 → 计时 → 提交 → 检查 → 激励 → 统计；平板端默认独占运行，退出须家长密码授权</p>
   <div class="meta">
-    <div><span>版本</span><b>v1.5（待评审）</b></div>
+    <div><span>版本</span><b>v1.6（待评审）</b></div>
     <div><span>日期</span><b>2026-11-23</b></div>
     <div><span>形态</span><b>家长 PC Web + 华为 Android 平板原生 App</b></div>
     <div><span>优先级</span><b>P0 必做 / P1 增强 / P2 可选</b></div>
@@ -246,6 +246,7 @@
       <tr><td>DEF-23</td><td>任务接收人</td><td>创建任务须显式选择接收孩子，支持单选/多选/全选；未选择时禁止发布，不默认全选</td><td>否</td></tr>
       <tr><td>DEF-24</td><td>钉钉前台停留上限</td><td>受控跳转至钉钉后默认最多停留 10 分钟，到时自动拉回学习工作台并提示</td><td>是（L2 / K12）</td></tr>
       <tr><td>DEF-25</td><td>Lock Task 白名单范围</td><td>默认仅「学习工作台 + 钉钉」；新增任何应用须家长二次确认并重做逃逸测试，不得整体放开</td><td>是（L2）</td></tr>
+      <tr><td>DEF-26</td><td>多窗口与悬浮窗</td><td>默认全部禁用：激活前关闭华为智慧多窗应用栏，设备所有者设置 <code>DISALLOW_CREATE_WINDOWS</code> 禁止覆盖窗口，不启用最近任务功能；钉钉以全屏受控跳转使用，<b>不以小窗方式常驻</b></td><td>否</td></tr>
     </tbody>
   </table>
 
@@ -259,6 +260,7 @@
       <tr><td>v1.3</td><td>2026-11-23</td><td>设备进一步确定为 2022 年华为平板、早期 HarmonyOS 2.x：澄清 HarmonyOS 2 与鸿蒙 NEXT 的区别（前者兼容 Android APK，方案不变）；新增 1.6.1 设备自查流程（开发者选项 + ADB 命令序列）；修正 HarmonyOS 相关边界与验收表述。</td></tr>
       <tr><td>v1.4</td><td>2026-11-23</td><td>新增多孩子需求：1.7 多孩子模型与数据隔离；设备—孩子绑定与切换流程；家长端统一看板与按孩子筛选、给多孩子批量/分别布置；积分/奖励/统计按孩子隔离；新增对应边界场景与验收标准。</td></tr>
       <tr><td>v1.5</td><td>2026-11-23</td><td>新增钉钉打卡受控跳转：1.8 三路径对比与推荐实现、Lock Task 白名单机制、实机验证清单；DEF-01 增加钉钉打卡基础分，新增 DEF-24/25；补充权限、功能、流程 I、页面、边界与验收场景。</td></tr>
+      <tr><td>v1.6</td><td>2026-11-23</td><td>针对华为「智慧多窗 / 悬浮窗 / 迷你窗 / 悬浮球 / 分屏」细化逃逸防护：1.6.3 补充系统级关闭与 DISALLOW_CREATE_WINDOWS 策略、新增五项多窗逃逸验证清单；新增 DEF-26；同步 1.8.3、边界 32 与验收场景，明确小窗不得作为产品功能依赖。</td></tr>
     </tbody>
   </table>
 
@@ -294,7 +296,7 @@ adb shell dpm device-owner</pre>
       <tr><td>系统版本</td><td>Android 5.0（API 21）以上；<b>Android 10 起强制要求应用为 Device Owner 或 Profile Owner 才能调用锁定任务</b>。目标设备为 HarmonyOS 2.x（2022 年），兼容 Android APK、底层为 AOSP，原则上具备企业 API；是否实际可用以 1.6.1 自查结果为准，不得跳过验证直接假设。若自查发现为鸿蒙 NEXT，本方案不适用。</td></tr>
       <tr><td>单台激活 <span class="tag">推荐起步</span></td><td>设备恢复出厂、<b>不登录任何华为账号</b>状态下，USB 连接电脑执行 <code>adb shell dpm set-device-owner 包名/.DeviceAdminReceiver</code>。设备一旦存在账号则命令失败，须先恢复出厂。此操作不可通过应用内普通权限撤销。</td></tr>
       <tr><td>批量激活 <span class="tag">P2</span></td><td>通过 Android Enterprise 专用设备（Dedicated Device）二维码 / NFC 零触摸注册，配合 MDM 下发设备所有者策略。当前单台设备无需引入 MDM。</td></tr>
-      <tr><td>锁定白名单</td><td>设备所有者应用调用 <code>setLockTaskPackages()</code> 将本应用包名加入白名单；应用启动后调用 <code>startLockTask()</code> 进入锁定，此后 Home / 最近任务 / 通知栏被系统隐藏。</td></tr>
+      <tr><td>锁定白名单</td><td>设备所有者应用调用 <code>setLockTaskPackages()</code> 将本应用加入白名单；应用启动后调用 <code>startLockTask()</code> 进入锁定，此后 Home / 最近任务 / 通知栏被系统隐藏；同时设置 <code>DISALLOW_CREATE_WINDOWS</code> 并关闭华为智慧多窗应用栏（见 1.6.3）。</td></tr>
       <tr><td>开机自启</td><td>应用注册 <code>BOOT_COMPLETED</code> 接收器，开机后自动启动主界面并调用 <code>startLockTask()</code>；配合 <code>setKeyguardDisabled</code> 禁用锁屏、<code>setStatusBarDisabled</code> 禁用状态栏；使用沉浸式全屏布局。</td></tr>
     </tbody>
   </table>
@@ -304,10 +306,21 @@ adb shell dpm device-owner</pre>
   <ul>
     <li><b>手势导航：</b>上滑回桌面、侧滑返回等手势在部分厂商系统上仍可能触发；须在设置中固定为三键导航或在应用中处理返回事件。</li>
     <li><b>物理/硬件按键：</b>部分机型返回键、最近任务键可通过硬件或组合键触发；须真机逐一验证，配合设备所有者策略禁用状态栏与锁屏。</li>
-    <li><b>智慧多窗 / 悬浮窗 / 分屏：</b>须在设备策略中禁用多窗口与悬浮窗，防止从应用内划出其他程序。</li>
+    <li><b>智慧多窗 / 悬浮窗 / 分屏（重点）：</b>华为平板支持从屏幕左右边缘滑出「多窗口应用栏」把 App 拖成悬浮窗、缩成迷你窗 / 悬浮球、从最近任务切换为小窗，部分机型还可把链接或附件以悬浮窗打开。这是<b>系统级多任务能力</b>，不因应用全屏而自动失效，也不受 Lock Task 白名单直接管辖；Android Kiosk 指南将「悬浮窗 / 画中画覆盖层」列为需专门测试的逃逸路径。必须在<b>激活前</b>关闭「智慧多窗应用栏」（设置 → 辅助功能 / 智慧多窗 → 关闭应用栏开关），由设备所有者设置 <code>DISALLOW_CREATE_WINDOWS</code> 禁止其他应用创建覆盖窗口，且不启用 <code>LOCK_TASK_FEATURE_RECENT_APPS</code>。逐项验证见下表。</li>
     <li><b>系统对话框与通知：</b>Lock Task 下仍可能弹出系统对话框，须用 <code>onUserLeaveHint</code> 检测并立即重新调用 <code>startLockTask()</code>。</li>
     <li><b>应用内跳转：</b>锁定期间禁止拉起浏览器、系统设置等外部 Activity，否则会中断锁定或抛 SecurityException。</li>
   </ul>
+  <table>
+    <thead><tr><th style="width:200px">多窗逃逸路径</th><th>验证动作</th><th>通过标准</th></tr></thead>
+    <tbody>
+      <tr><td>边缘滑出多窗口应用栏</td><td>在学习锁定态从屏幕左右边缘内滑并停留</td><td>应用栏不出现；或出现但无法启动任何应用</td></tr>
+      <tr><td>最近任务 → 转小窗</td><td>触发最近任务，尝试把应用卡片转为悬浮窗</td><td>最近任务不可用，或转小窗操作无效</td></tr>
+      <tr><td>悬浮球切换应用</td><td>尝试呼出悬浮球并切换到其他应用</td><td>无悬浮球，或切换被白名单拦截</td></tr>
+      <tr><td>分屏手势</td><td>把当前窗口拖向屏幕左右边缘触发分屏</td><td>无法分屏；若分屏仍可触发，第二应用不得是白名单外应用</td></tr>
+      <tr><td>应用内链接 / 附件小窗</td><td>在钉钉内点击链接或附件，观察是否以悬浮窗打开</td><td>不得打开白名单外应用或浏览器；若系统强制打开须记录为已知限制并通知家长</td></tr>
+    </tbody>
+  </table>
+  <div class="callout warn"><b>结论：</b>小窗能力由华为系统提供，学习 App <b>无法在自身界面内嵌入钉钉小窗，也不能把小窗当作产品功能依赖</b>。它只能作为必须封死的逃逸面处理。上述五项任一项无法封堵，则 Kiosk 不合格：家长端防护等级标注为「软件级，不保证阻止切应用」，钉钉打卡按 1.8.1 路径 A（家长解锁）兜底，不得声称已实现受控独占。</div>
 
   <h4>1.6.4 与家长端的联动</h4>
   <ul>
@@ -367,6 +380,7 @@ adb shell dpm device-owner</pre>
       <tr><td>返回路径</td><td>Home / 返回键可回到学习工作台，且不退出 Kiosk；钉钉不会成为新的逃逸出口。</td></tr>
       <tr><td>超时拉回</td><td>超过 DEF-24 后自动拉回工作台并提示，事件记入审计。</td></tr>
       <tr><td>账号边界</td><td>孩子端使用学校钉钉账号；家长不共享账号。账号切换与退出登录不在本系统职责内，须由家长线下处理。</td></tr>
+      <tr><td>多窗 / 悬浮窗</td><td>按 1.6.3 五项验证全部通过：钉钉始终全屏受控，不得被拉成悬浮窗或迷你窗，悬浮球不得切换应用；任一项失败即按路径 A 兜底。</td></tr>
     </tbody>
   </table>
   <div class="callout warn"><b>边界声明：</b>钉钉内可访问的聊天、班级群、小程序等内容不在本系统管控范围，本方案<b>不承诺阻止孩子在钉钉内分心</b>。若学校打卡频率高或钉钉内干扰严重，建议改用家长解锁兜底路径，或由家长在旁监督打卡。</div>
@@ -927,6 +941,7 @@ adb shell dpm device-owner</pre>
       <tr><td>22</td><td><b>奖励与独占冲突</b></td><td>兑换「增加平板使用时间」仅获得额度，不等于解锁；须家长验证后生效，额度用尽自动回锁。孩子端不得显示「兑换后立即解锁」的误导文案。</td></tr>
       <tr><td>23</td><td>多孩子共用一台平板</td><td>一台设备同一时刻仅绑定一个孩子；切换须家长解锁后在 PC 端操作并记入审计；原孩子进行中任务暂停并保留已用时长，新孩子加载自己的待办；切换过程不得泄露另一孩子的任务、评价或积分。</td></tr>
       <tr><td>24</td><td>ROOT / 越狱检测 <span class="tag">P2</span></td><td>检测到设备被 ROOT/越狱或 Kiosk 策略失效时，立即上报家长并尝试自动重新锁定；无法重新锁定时向家长推送高危告警。</td></tr>
+      <tr><td>32</td><td><b>华为智慧多窗绕过</b></td><td>小窗 / 悬浮窗 / 迷你窗 / 悬浮球 / 分屏属系统级能力，全屏与应用内锁定均不自动阻止。激活前关闭智慧多窗应用栏并设置 <code>DISALLOW_CREATE_WINDOWS</code>；实机验证 1.6.3 五项，任一项能打开白名单外应用即判定 Kiosk 不合格，不得按 P0 交付，钉钉打卡改走家长解锁兜底。</td></tr>
       <tr><td>25</td><td>多孩子数据串扰</td><td>所有查询接口强制带孩子 ID 过滤；家长按孩子维度统计，孩子端只返回当前绑定孩子数据；跨孩子访问请求一律拒绝并记录安全事件。</td></tr>
       <tr><td>26</td><td>任务未选接收人</td><td>未显式选择孩子时禁止发布（DEF-23），防止误布置给全部孩子；草稿可保存但不得下发。</td></tr>
       <tr><td>27</td><td><b>钉钉未安装 / 打卡失败</b></td><td>点击跳转前检测钉钉是否安装并可启动；不可用、打卡能力（拍照/选图/定位）受限或无法返回时，提示孩子发起家长解锁申请走流程 F 兜底，并通知家长；不静默失败、不判定为逾期。</td></tr>
@@ -997,6 +1012,7 @@ adb shell dpm device-owner</pre>
       <tr><td>多孩子任务下发</td><td><b>Given</b> 家庭下有两个孩子 A、B，家长创建朗读任务并选择两人<br><b>When</b> 家长发布任务<br><b>Then</b> 生成两条独立执行实例；A 完成后 B 仍为待开始；家长看板按孩子分列显示各自状态，积分分别入账</td></tr>
       <tr><td>未选接收人</td><td><b>Given</b> 家长新建任务但未选择任何孩子<br><b>When</b> 点击发布<br><b>Then</b> 发布被阻止并提示选择接收人；草稿可保存但不得下发（DEF-23）</td></tr>
       <tr><td>设备切换孩子</td><td><b>Given</b> 平板绑定孩子 A，A 有一项进行中任务<br><b>When</b> 家长解锁后在 PC 端切换绑定至孩子 B<br><b>Then</b> A 的任务暂停并保留已用时长，平板加载 B 的待办；A 的任务/评价/积分对 B 不可见；切换事件记入审计</td></tr>
+      <tr><td>智慧多窗逃逸</td><td><b>Given</b> 设备处于学习锁定态，且已关闭智慧多窗应用栏并设置覆盖窗口限制<br><b>When</b> 孩子从边缘滑出应用栏、从最近任务转小窗、呼出悬浮球、拖边缘分屏、在钉钉内点链接<br><b>Then</b> 均无法打开白名单外应用；任一项成功即 Kiosk 验收不通过，钉钉打卡转家长解锁兜底（1.8.1 路径 A）</td></tr>
       <tr><td>钉钉受控跳转</td><td><b>Given</b> 白名单为「学习工作台 + 钉钉」，孩子开始钉钉打卡任务<br><b>When</b> 点击「去钉钉打卡」<br><b>Then</b> 钉钉在前台且仍处于 Kiosk 锁定态，尝试打开微信/浏览器/设置均被阻止；按 Home 键回到工作台，跳转与返回记入审计</td></tr>
       <tr><td>钉钉超时拉回</td><td><b>Given</b> 钉钉前台停留已达 DEF-24（10 分钟）<br><b>When</b> 到达上限<br><b>Then</b> 自动拉回学习工作台并提示，事件记入审计；该停留时长不计入学习时长</td></tr>
       <tr><td>钉钉打卡失败兜底</td><td><b>Given</b> 设备未安装钉钉，或打卡所需相机/选图在 Kiosk 下不可用<br><b>When</b> 孩子点击「去钉钉打卡」<br><b>Then</b> 明确提示不可用并提供「请家长解锁」入口，走流程 F 兜底；不静默失败、不误判逾期、家长收到通知</td></tr>
@@ -1029,12 +1045,12 @@ adb shell dpm device-owner</pre>
     <li>强制重启 / Kiosk 策略失效事件上报家长延迟 ≤ 1 分钟。</li>
   </ul>
 
-  <div class="callout warn"><b>前置条件：</b>独占模式的 P0 验收以目标华为 Android 平板完成 Device Owner 激活 + Lock Task Mode 白名单配置，且通过 1.6 实机验证清单全部 7 项为前提；<b>若启用钉钉打卡，还须通过 1.8.3 实机验证清单全部 5 项，否则按 1.8.1 路径 A 兜底，不得声称已实现受控跳转</b>。设备侧配置未完成、1.6.1 自查未通过或 1.6 实机验证清单未全部通过前，K7/K9 只能按软件级降级验收，且必须向家长明示防护等级；若设备为鸿蒙 NEXT，则不得降级交付，须先更换设备。</div>
+  <div class="callout warn"><b>前置条件：</b>独占模式的 P0 验收以目标华为 Android 平板完成 Device Owner 激活 + Lock Task Mode 白名单配置，且通过 1.6 实机验证清单全部 7 项、1.6.3 多窗逃逸五项验证全部通过为前提；<b>若启用钉钉打卡，还须通过 1.8.3 实机验证清单全部 5 项，否则按 1.8.1 路径 A 兜底，不得声称已实现受控跳转</b>。设备侧配置未完成、1.6.1 自查未通过或 1.6 实机验证清单未全部通过前，K7/K9 只能按软件级降级验收，且必须向家长明示防护等级；若设备为鸿蒙 NEXT，则不得降级交付，须先更换设备。</div>
 
   <div class="callout ok"><b>验收通过定义：</b>10.1 全部满足、10.2 全部场景通过、10.3 数据零差异、10.4 无阻塞级问题（P0 缺陷为 0），方可进入试运行。P1/P2 功能可分批上线，不影响 P0 主闭环验收；<b>独占模式与其设备侧前置条件属于 P0，不得因设备配置困难而降级交付</b>。</div>
 </section>
 
-<div class="footer">孩子学习工作台需求方案 · v1.5 · 2026-11-23 · 待评审</div>
+<div class="footer">孩子学习工作台需求方案 · v1.6 · 2026-11-23 · 待评审</div>
 
 </div></main>
 </div>
