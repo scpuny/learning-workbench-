@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>家长端原型 · 孩子学习工作台</title>
+<style>
+:root{
+  --bg:#f5f7fa;--paper:#fff;--ink:#1f2430;--ink2:#4a5568;--ink3:#8895a7;
+  --line:#e3e8ef;--primary:#2f5fd0;--primary-soft:#eef3ff;
+  --green:#1e8a5b;--green-soft:#e9f7f0;--amber:#b47411;--amber-soft:#fff4e2;
+  --red:#b8352b;--red-soft:#fdecea;--purple:#6b46c1;--purple-soft:#f3efff;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:13px}
+.app{display:flex;min-height:100vh}
+.sidebar{width:212px;flex:0 0 212px;background:#fff;border-right:1px solid var(--line);padding:18px 0;position:sticky;top:0;height:100vh;overflow-y:auto}
+.logo{padding:0 20px 16px;font-size:16px;font-weight:750;border-bottom:1px solid var(--line);margin-bottom:10px}
+.logo small{display:block;font-size:10px;color:var(--ink3);font-weight:400;margin-top:2px}
+.nav{list-style:none;margin:0;padding:0}
+.nav li{padding:9px 20px;cursor:pointer;color:var(--ink2);display:flex;align-items:center;gap:9px;border-left:3px solid transparent}
+.nav li:hover{background:#f7f9fc}
+.nav li.on{background:var(--primary-soft);color:var(--primary);border-left-color:var(--primary);font-weight:700}
+.nav li .ico{width:16px;text-align:center;font-size:14px}
+.main{flex:1;min-width:0}
+.topbar{height:60px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 26px;position:sticky;top:0;z-index:5}
+.crumb{color:var(--ink3);font-size:12px}
+.crumb b{color:var(--ink);font-size:15px}
+.top-actions{display:flex;align-items:center;gap:12px}
+.kid-switch{display:flex;gap:4px;background:#f2f5f9;padding:3px;border-radius:8px}
+.kid-switch button{border:0;background:transparent;padding:5px 11px;border-radius:6px;font-size:12px;cursor:pointer;color:var(--ink2)}
+.kid-switch button.on{background:#fff;color:var(--primary);font-weight:700;box-shadow:0 1px 3px #0001}
+.avatar{width:30px;height:30px;border-radius:50%;background:#dbe6ff;color:var(--primary);display:flex;align-items:center;justify-content:center;font-weight:700}
+.content{padding:22px 26px 60px}
+.page{display:none}
+.page.on{display:block}
+h2{font-size:18px;margin:0 0 4px}
+.sub{color:var(--ink3);font-size:12px;margin-bottom:18px}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:16px 18px}
+.card .lab{color:var(--ink3);font-size:12px}
+.card .val{font-size:25px;font-weight:750;margin-top:6px;letter-spacing:-.5px}
+.card .trend{font-size:11px;margin-top:4px;color:var(--ink3)}
+.card .trend.up{color:var(--green)}
+.panel{background:#fff;border:1px solid var(--line);border-radius:10px;padding:18px;margin-bottom:18px}
+.panel h3{font-size:14px;margin:0 0 14px;display:flex;align-items:center;justify-content:space-between}
+.panel h3 .more{font-size:11px;color:var(--primary);font-weight:500;cursor:pointer}
+.toolbar{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:#fff;padding:7px 13px;border-radius:7px;cursor:pointer;font-size:12px;color:var(--ink2)}
+.btn:hover{border-color:var(--primary);color:var(--primary)}
+.btn.primary{background:var(--primary);border-color:var(--primary);color:#fff;font-weight:600}
+.btn.danger{background:var(--red);border-color:var(--red);color:#fff}
+.btn.sm{padding:4px 9px;font-size:11px}
+input,select,textarea{border:1px solid var(--line);border-radius:7px;padding:7px 10px;font-size:12px;font-family:inherit;color:var(--ink);background:#fff}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;color:var(--ink3);font-weight:600;padding:9px 8px;border-bottom:1px solid var(--line)}
+td{padding:11px 8px;border-bottom:1px solid #f0f2f5;vertical-align:middle}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10.5px;font-weight:700}
+.b-blue{background:var(--primary-soft);color:var(--primary)}
+.b-green{background:var(--green-soft);color:var(--green)}
+.b-amber{background:var(--amber-soft);color:var(--amber)}
+.b-red{background:var(--red-soft);color:var(--red)}
+.b-purple{background:var(--purple-soft);color:var(--purple)}
+.b-gray{background:#f1f3f6;color:var(--ink3)}
+.stars{color:#e8a317;letter-spacing:1px}
+.kid-chip{display:inline-flex;align-items:center;gap:5px;background:#f2f5f9;padding:3px 8px;border-radius:14px;font-size:11px;margin-right:4px}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+.bar{height:8px;border-radius:5px;background:#eef1f5;overflow:hidden;width:100px}
+.bar i{display:block;height:100%;background:var(--primary);border-radius:5px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.field{margin-bottom:14px}
+.field label{display:block;font-weight:600;margin-bottom:6px;font-size:12px}
+.field .hint{font-size:11px;color:var(--ink3);margin-top:4px}
+.field input,.field select,.field textarea{width:100%}
+.chkgrid{display:flex;flex-wrap:wrap;gap:8px}
+.chkgrid label{border:1px solid var(--line);border-radius:8px;padding:8px 12px;cursor:pointer;font-weight:500;display:flex;align-items:center;gap:6px}
+.chkgrid label.on{border-color:var(--primary);background:var(--primary-soft);color:var(--primary)}
+.review{display:flex;gap:18px}
+.review .left{flex:1}
+.review .right{width:280px;background:#fafbfc;border-radius:8px;padding:14px}
+.note{background:var(--amber-soft);border-left:3px solid var(--amber);padding:10px 13px;border-radius:0 7px 7px 0;font-size:12px;margin-bottom:14px}
+.dotline{display:flex;align-items:center;gap:8px;margin:7px 0}
+.dotline .dot{width:9px;height:9px}
+.legend{display:flex;gap:16px;font-size:11px;color:var(--ink3);margin-top:10px}
+.toast{position:fixed;right:24px;bottom:24px;background:#1f2430;color:#fff;padding:11px 16px;border-radius:8px;font-size:12px;opacity:0;transition:.2s;pointer-events:none}
+.toast.show{opacity:1}
+@media(max-width:1100px){.cards{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="logo">学习工作台 <small>家长端 · PC 原型</small></div>
+  <ul class="nav">
+    <li class="on" data-p="home"><span class="ico">▦</span> 概览看板</li>
+    <li data-p="tasks"><span class="ico">☰</span> 任务中心</li>
+    <li data-p="create"><span class="ico">＋</span> 创建任务</li>
+    <li data-p="review"><span class="ico">✓</span> 检查评价 <span class="badge b-red">3</span></li>
+    <li data-p="stats"><span class="ico">▤</span> 统计报表</li>
+    <li data-p="reward"><span class="ico">★</span> 积分与奖励</li>
+    <li data-p="device"><span class="ico">▣</span> 设备与孩子</li>
+  </ul>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="crumb">家庭 / <b id="crumb">全部孩子</b></div>
+    <div class="top-actions">
+      <div class="kid-switch">
+        <button class="on" data-kid="all">全部孩子</button>
+        <button data-kid="a">小满</button>
+        <button data-kid="b">小星</button>
+      </div>
+      <div class="avatar">杨</div>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- 概览 -->
+    <div class="page on" id="home">
+      <h2>概览看板</h2><div class="sub">2026年11月23日 周一 · 数据实时同步</div>
+      <div class="cards">
+        <div class="card"><div class="lab">本周完成率</div><div class="val">86%</div><div class="trend up">↑ 较上周 +6%</div></div>
+        <div class="card"><div class="lab">本周准时率</div><div class="val">78%</div><div class="trend up">↑ 较上周 +3%</div></div>
+        <div class="card"><div class="lab">累计学习时长</div><div class="val">12.5<small style="font-size:13px">h</small></div><div class="trend">本周 4.2 小时</div></div>
+        <div class="card"><div class="lab">待检查 / 逾期</div><div class="val" style="color:var(--red)">3 / 2</div><div class="trend">需尽快处理</div></div>
+      </div>
+
+      <div class="panel">
+        <h3>孩子状态一览 <span class="more" onclick="go('tasks')">查看任务中心 →</span></h3>
+        <div class="grid2">
+          <div style="border:1px solid var(--line);border-radius:9px;padding:14px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+              <b>小满 <span class="kid-chip"><span class="dot" style="background:var(--primary)"></span>三年级</span></b>
+              <span class="badge b-blue">积分 248</span>
+            </div>
+            <div style="font-size:12px;color:var(--ink2);line-height:2">
+              今日任务 <b>4</b> 项 · 已完成 <b>3</b> · 待检查 <b>1</b> · 逾期 <b>0</b><br>
+              本周完成率 <b>92%</b> · 连续达标 <b>5 天</b>
+            </div>
+            <div class="bar" style="margin-top:10px;width:100%"><i style="width:92%"></i></div>
+          </div>
+          <div style="border:1px solid var(--line);border-radius:9px;padding:14px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+              <b>小星 <span class="kid-chip"><span class="dot" style="background:var(--green)"></span>一年级</span></b>
+              <span class="badge b-green">积分 156</span>
+            </div>
+            <div style="font-size:12px;color:var(--ink2);line-height:2">
+              今日任务 <b>3</b> 项 · 已完成 <b>1</b> · 待检查 <b>2</b> · 逾期 <b>2</b><br>
+              本周完成率 <b>70%</b> · 连续达标 <b>1 天</b>
+            </div>
+            <div class="bar" style="margin-top:10px;width:100%"><i style="width:70%;background:var(--amber)"></i></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>待检查任务 <span class="more" onclick="go('review')">全部 3 项 →</span></h3>
+        <table>
+          <thead><tr><th>任务</th><th>孩子</th><th>预计/实际</th><th>提交时间</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr><td>语文朗读《秋天的雨》</td><td><span class="kid-chip">小满</span></td><td>15 / 14 分</td><td>17:42</td><td><button class="btn sm primary" onclick="go('review')">去检查</button></td></tr>
+            <tr><td>数学口算练习</td><td><span class="kid-chip">小星</span></td><td>20 / 26 分 <span class="badge b-amber">超时</span></td><td>17:55</td><td><button class="btn sm primary" onclick="go('review')">去检查</button></td></tr>
+            <tr><td>英语绘本阅读</td><td><span class="kid-chip">小星</span></td><td>15 / 18 分</td><td>18:03</td><td><button class="btn sm primary" onclick="go('review')">去检查</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 任务中心 -->
+    <div class="page" id="tasks">
+      <h2>任务中心</h2><div class="sub">按孩子筛选与批量管理</div>
+      <div class="panel">
+        <div class="toolbar">
+          <select><option>全部状态</option><option>待开始</option><option>进行中</option><option>待检查</option><option>已完成</option><option>逾期</option></select>
+          <select><option>全部类型</option><option>学校作业</option><option>朗读</option><option>阅读</option><option>复习</option></select>
+          <input placeholder="搜索任务标题" style="width:180px">
+          <button class="btn primary" onclick="go('create')">＋ 新建任务</button>
+        </div>
+        <table>
+          <thead><tr><th>任务</th><th>类型</th><th>孩子</th><th>预计时长</th><th>截止时间</th><th>状态</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr><td>语文朗读《秋天的雨》</td><td><span class="badge b-purple">朗读</span></td><td><span class="kid-chip">小满</span></td><td>15 分钟</td><td>今日 18:00</td><td><span class="badge b-amber">待检查</span></td><td><button class="btn sm" onclick="go('review')">检查</button></td></tr>
+            <tr><td>数学口算练习</td><td><span class="badge b-blue">学校作业</span></td><td><span class="kid-chip">小星</span></td><td>20 分钟</td><td>今日 18:00</td><td><span class="badge b-amber">待检查</span></td><td><button class="btn sm" onclick="go('review')">检查</button></td></tr>
+            <tr><td>英语绘本阅读</td><td><span class="badge b-green">阅读</span></td><td><span class="kid-chip">小星</span></td><td>15 分钟</td><td>今日 18:30</td><td><span class="badge b-amber">待检查</span></td><td><button class="btn sm" onclick="go('review')">检查</button></td></tr>
+            <tr><td>古诗背诵《望庐山瀑布》</td><td><span class="badge b-purple">朗读</span></td><td><span class="kid-chip">小满</span><span class="kid-chip">小星</span></td><td>10 分钟</td><td>明日 19:00</td><td><span class="badge b-blue">待开始</span></td><td><button class="btn sm">编辑</button></td></tr>
+            <tr><td>科学错题复习</td><td><span class="badge b-green">复习</span></td><td><span class="kid-chip">小满</span></td><td>25 分钟</td><td>今日 17:30</td><td><span class="badge b-red">逾期</span></td><td><button class="btn sm">宽限</button></td></tr>
+            <tr><td>英语单词抄写</td><td><span class="badge b-blue">学校作业</span></td><td><span class="kid-chip">小星</span></td><td>15 分钟</td><td>今日 17:45</td><td><span class="badge b-red">逾期</span></td><td><button class="btn sm">宽限</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 创建任务 -->
+    <div class="page" id="create">
+      <h2>创建任务</h2><div class="sub">接收孩子为必填项，未选择不得发布</div>
+      <div class="grid2">
+        <div class="panel">
+          <h3>基础信息</h3>
+          <div class="field"><label>任务类型</label>
+            <select><option>学校作业</option><option selected>朗读</option><option>阅读</option><option>复习</option><option>自定义</option></select>
+          </div>
+          <div class="field"><label>任务标题</label><input value="语文朗读《秋天的雨》"></div>
+          <div class="field"><label>任务内容 / 要求</label><textarea rows="3">朗读课文第 2-4 自然段，注意停顿与感情，至少朗读 3 遍</textarea></div>
+          <div class="field"><label>朗读文本</label><textarea rows="4">秋天的雨，是一把钥匙。它带着清凉和温柔，轻轻地，轻轻地，趁你没留意，把秋天的大门打开了……</textarea><div class="hint">朗读任务专属字段：孩子端将展示全文并支持字号调节</div></div>
+          <div class="field"><label>预计时长（分钟）</label><input type="number" value="15"></div>
+          <div class="field"><label>截止时间</label><input type="datetime-local" value="2026-11-23T18:00"></div>
+        </div>
+        <div class="panel">
+          <h3>接收孩子 <span class="badge b-red">必填</span></h3>
+          <div class="chkgrid">
+            <label class="on"><input type="checkbox" checked> 小满（三年级）</label>
+            <label><input type="checkbox"> 小星（一年级）</label>
+            <label><button class="btn sm" onclick="event.preventDefault();toast('已全选两个孩子')">全选</button></label>
+          </div>
+          <div class="note" style="margin-top:12px">未选择任何孩子时「发布」不可用；选择多人将生成各自独立的执行实例。</div>
+          <h3 style="margin-top:18px">个体差异设置</h3>
+          <div class="field"><label>小满 · 截止时间</label><input type="datetime-local" value="2026-11-23T18:00"></div>
+          <div class="field"><label>小满 · 关联奖励</label><select><option>不关联</option><option selected>完成 +10 积分</option><option>增加平板时间 15 分钟</option></select></div>
+          <h3 style="margin-top:18px">附件</h3>
+          <button class="btn">＋ 上传图片 / 文档</button>
+          <div style="margin-top:24px;display:flex;gap:10px">
+            <button class="btn" onclick="toast('已保存为草稿')">保存草稿</button>
+            <button class="btn primary" onclick="toast('已发布给 1 个孩子')">发布任务</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 检查评价 -->
+    <div class="page" id="review">
+      <h2>检查评价</h2><div class="sub">待检查 3 项 · 按孩子分列</div>
+      <div class="panel review">
+        <div class="left">
+          <div style="display:flex;gap:8px;margin-bottom:14px">
+            <button class="btn sm primary">语文朗读《秋天的雨》</button><button class="btn sm">数学口算练习</button><button class="btn sm">英语绘本阅读</button>
+          </div>
+          <div class="note">孩子：小满 · 提交时间 17:42 · 预计 15 分钟 / 实际 14 分钟 <span class="badge b-green">准时</span></div>
+          <h4 style="font-size:13px;margin:16px 0 8px">孩子提交内容</h4>
+          <div style="border:1px solid var(--line);border-radius:8px;padding:14px;line-height:2">
+            朗读遍数：<b>3 遍</b>　流利度自评：<b>★★★★☆</b><br>
+            备注：第三遍比第一遍流利，有个别句子停顿不够自然。<br>
+            附件：<span class="badge b-blue">朗读记录.txt</span> <span class="badge b-blue">课文照片.jpg</span>
+          </div>
+          <h4 style="font-size:13px;margin:18px 0 8px">评价</h4>
+          <div style="margin-bottom:10px">星级：<span class="stars" style="font-size:20px">★★★★★</span></div>
+          <div class="field"><label>评语 / 标签</label><textarea rows="3">朗读很认真，感情表达进步明显。继续保持每天练习！</textarea></div>
+          <div class="chkgrid" style="margin-bottom:16px">
+            <label class="on"><input type="checkbox" checked> 专注</label><label><input type="checkbox"> 有进步</label><label><input type="checkbox"> 需提醒</label>
+          </div>
+          <button class="btn primary" onclick="toast('已通过，积分已结算')">通过并结算积分</button>
+          <button class="btn danger" onclick="toast('已驳回，任务回到进行中')" style="margin-left:8px">驳回重做</button>
+        </div>
+        <div class="right">
+          <h4 style="font-size:13px;margin-top:0">用时对比</h4>
+          <div style="font-size:12px;line-height:2">预计时长 <b>15 分钟</b><br>实际用时 <b>14 分钟</b><br>偏差 <span style="color:var(--green)">−1 分钟</span></div>
+          <hr style="border:0;border-top:1px solid var(--line);margin:14px 0">
+          <h4 style="font-size:13px">积分预览</h4>
+          <div style="font-size:12px;line-height:2">基础分（朗读）<b>+10</b><br>准时加成 <b>+5</b><br>5 星加成 <b>+8</b></div>
+          <div style="border-top:1px solid var(--line);margin-top:8px;padding-top:8px;font-weight:700">合计 +23 分</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 统计 -->
+    <div class="page" id="stats">
+      <h2>统计报表</h2><div class="sub">支持按孩子维度查看与横向对比</div>
+      <div class="toolbar">
+        <select><option>本周</option><option>上周</option><option>本月</option></select>
+        <select><option>全部孩子</option><option>小满</option><option>小星</option></select>
+        <button class="btn" onclick="toast('报表已导出')">导出 Excel</button>
+      </div>
+      <div class="cards">
+        <div class="card"><div class="lab">完成率</div><div class="val">86%</div><div class="trend up">↑ +6%</div></div>
+        <div class="card"><div class="lab">准时率</div><div class="val">78%</div><div class="trend up">↑ +3%</div></div>
+        <div class="card"><div class="lab">累计学习时长</div><div class="val">12.5h</div><div class="trend">小满 7.2h / 小星 5.3h</div></div>
+        <div class="card"><div class="lab">平均用时偏差</div><div class="val" style="color:var(--amber)">+1.8<small style="font-size:13px">min</small></div><div class="trend">整体略超时</div></div>
+      </div>
+      <div class="grid2">
+        <div class="panel"><h3>任务类型分布</h3>
+          <div style="display:flex;align-items:center;gap:24px">
+            <div style="width:130px;height:130px;border-radius:50%;background:conic-gradient(#2f5fd0 0 35%,#6b46c1 35% 60%,#1e8a5b 60% 85%,#b47411 85% 100%)"></div>
+            <div style="font-size:12px;line-height:2">
+              <span class="dot" style="background:#2f5fd0"></span> 学校作业 35%<br>
+              <span class="dot" style="background:#6b46c1"></span> 朗读 25%<br>
+              <span class="dot" style="background:#1e8a5b"></span> 阅读 25%<br>
+              <span class="dot" style="background:#b47411"></span> 复习 15%
+            </div>
+          </div>
+        </div>
+        <div class="panel"><h3>孩子横向对比</h3>
+          <table><thead><tr><th>孩子</th><th>完成率</th><th>准时率</th><th>时长</th><th>星级</th></tr></thead>
+          <tbody><tr><td>小满</td><td>92%</td><td>88%</td><td>7.2h</td><td class="stars">★★★★★</td></tr>
+          <tr><td>小星</td><td>70%</td><td>60%</td><td>5.3h</td><td class="stars">★★★☆☆</td></tr></tbody></table>
+        </div>
+      </div>
+      <div class="panel"><h3>每日完成趋势（示意）</h3>
+        <div style="display:flex;align-items:flex-end;gap:12px;height:120px;padding-top:10px">
+          <div style="flex:1;background:#c9d8f5;height:60%;border-radius:4px 4px 0 0"></div>
+          <div style="flex:1;background:#c9d8f5;height:80%;border-radius:4px 4px 0 0"></div>
+          <div style="flex:1;background:#c9d8f5;height:70%;border-radius:4px 4px 0 0"></div>
+          <div style="flex:1;background:#2f5fd0;height:95%;border-radius:4px 4px 0 0"></div>
+          <div style="flex:1;background:#2f5fd0;height:88%;border-radius:4px 4px 0 0"></div>
+          <div style="flex:1;background:#2f5fd0;height:75%;border-radius:4px 4px 0 0"></div>
+          <div style="flex:1;background:#2f5fd0;height:86%;border-radius:4px 4px 0 0"></div>
+        </div>
+        <div class="legend"><span>周一</span><span>周二</span><span>周三</span><span>周四</span><span>周五</span><span>周六</span><span>周日</span></div>
+      </div>
+    </div>
+
+    <!-- 积分奖励 -->
+    <div class="page" id="reward">
+      <h2>积分与奖励</h2><div class="sub">积分账户按孩子独立核算</div>
+      <div class="grid2">
+        <div class="panel"><h3>积分账户</h3>
+          <table><thead><tr><th>孩子</th><th>当前积分</th><th>本周获得</th><th>连续达标</th></tr></thead>
+          <tbody><tr><td>小满</td><td><b>248</b></td><td>+68</td><td>5 天</td></tr><tr><td>小星</td><td><b>156</b></td><td>+42</td><td>1 天</td></tr></tbody></table>
+          <h3 style="margin-top:18px">积分规则（默认）</h3>
+          <div style="font-size:12px;line-height:2">学校作业 +20 / 朗读 +10 / 阅读 +15 / 复习 +15<br>准时 +5 · 星级 0~8 · 逾期 −5（下限 0）</div>
+        </div>
+        <div class="panel"><h3>奖励目录 <button class="btn sm" onclick="toast('新增奖励')">＋ 新增</button></h3>
+          <table><thead><tr><th>奖励</th><th>所需积分</th><th>状态</th></tr></thead>
+          <tbody><tr><td>增加平板时间 30 分钟</td><td>80</td><td><span class="badge b-green">上架</span></td></tr>
+          <tr><td>去商场</td><td>200</td><td><span class="badge b-green">上架</span></td></tr>
+          <tr><td>去公园</td><td>120</td><td><span class="badge b-green">上架</span></td></tr></tbody></table>
+          <div class="note" style="margin-top:14px;margin-bottom:0">平板时长类奖励审批通过后只发放自由使用额度，不自动解锁；须家长验证密码后方可进入自由使用模式。</div>
+        </div>
+      </div>
+      <div class="panel"><h3>兑换审批 <span class="badge b-red">1 待处理</span></h3>
+        <table><thead><tr><th>孩子</th><th>奖励</th><th>申请时间</th><th>积分冻结</th><th>操作</th></tr></thead>
+        <tbody><tr><td><span class="kid-chip">小星</span></td><td>去公园</td><td>今日 17:20</td><td>120 分</td><td><button class="btn sm primary" onclick="toast('已通过，发放 120 分钟额度')">通过</button> <button class="btn sm" onclick="toast('已拒绝，积分退回')">拒绝</button></td></tr></tbody></table>
+      </div>
+    </div>
+
+    <!-- 设备与孩子 -->
+    <div class="page" id="device">
+      <h2>设备与孩子</h2><div class="sub">设备绑定、独占策略与解锁审计</div>
+      <div class="grid2">
+        <div class="panel"><h3>孩子档案 <button class="btn sm" onclick="toast('新增孩子')">＋ 新增</button></h3>
+          <table><thead><tr><th>孩子</th><th>年级</th><th>状态</th><th>绑定设备</th><th>操作</th></tr></thead>
+          <tbody><tr><td>小满</td><td>三年级</td><td><span class="badge b-green">启用</span></td><td>华为平板 · MatePad 2022</td><td><button class="btn sm">编辑</button></td></tr>
+          <tr><td>小星</td><td>一年级</td><td><span class="badge b-green">启用</span></td><td><span style="color:var(--ink3)">未绑定</span></td><td><button class="btn sm">绑定</button></td></tr></tbody></table>
+          <div class="note" style="margin-top:14px;margin-bottom:0">一台平板同一时刻只绑定一个孩子；切换主使用者须先解锁，再在此处操作，事件记入审计。</div>
+        </div>
+        <div class="panel"><h3>独占策略</h3>
+          <div style="font-size:12px;line-height:2.2">
+            独占模式 <span class="badge b-green">已开启</span><br>
+            防护等级 <span class="badge b-blue">系统级 · Lock Task</span><br>
+            解锁码 <b>6 位数字</b> · 连续错误 5 次锁定 15 分钟<br>
+            令牌有效期 <b>5 分钟</b> · 一次性有效<br>
+            自由使用到期提醒 <b>提前 5 分钟</b>
+          </div>
+          <button class="btn" style="margin-top:12px" onclick="toast('进入解锁码修改流程（需二次验证）')">修改解锁码</button>
+          <button class="btn danger" style="margin-top:8px" onclick="toast('设备已远程锁定')">远程锁定平板</button>
+        </div>
+      </div>
+      <div class="panel"><h3>解锁审计</h3>
+        <table><thead><tr><th>时间</th><th>孩子</th><th>类型</th><th>结果</th><th>操作人</th></tr></thead>
+        <tbody><tr><td>今日 17:30</td><td>小满</td><td>退出申请</td><td><span class="badge b-green">通过</span></td><td>家长</td></tr>
+        <tr><td>今日 16:12</td><td>小满</td><td>密码错误</td><td><span class="badge b-red">失败（3/5）</span></td><td>—</td></tr>
+        <tr><td>昨日 19:02</td><td>小星</td><td>设备切换</td><td><span class="badge b-blue">锁定→小满</span></td><td>家长</td></tr></tbody></table>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+function go(p){
+  document.querySelectorAll('.page').forEach(e=>e.classList.remove('on'));
+  document.getElementById(p).classList.add('on');
+  document.querySelectorAll('.nav li').forEach(e=>e.classList.toggle('on',e.dataset.p===p));
+}
+document.querySelectorAll('.nav li').forEach(li=>li.onclick=()=>go(li.dataset.p));
+document.querySelectorAll('.kid-switch button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.kid-switch button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+  document.getElementById('crumb').textContent=b.textContent;
+  toast('已切换视图：'+b.textContent);
+});
+document.querySelectorAll('.chkgrid label').forEach(l=>{
+  l.onclick=e=>{if(e.target.tagName!=='INPUT'){const c=l.querySelector('input');c.checked=!c.checked;}l.classList.toggle('on',l.querySelector('input').checked);};
+});
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(window._t);window._t=setTimeout(()=>t.classList.remove('show'),1800);}
+</script>
+</body>
+</html>

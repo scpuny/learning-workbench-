@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>孩子学习工作台 · 需求方案 v1.4</title>
+<style>
+  :root{
+    --bg:#f6f7f9;
+    --paper:#ffffff;
+    --ink:#1f2430;
+    --ink-2:#4a5568;
+    --ink-3:#718096;
+    --line:#e2e6ec;
+    --line-strong:#cbd2dc;
+    --primary:#2f5fd0;
+    --primary-soft:#eef3ff;
+    --green:#1e8a5b;
+    --green-soft:#e9f7f0;
+    --amber:#b47411;
+    --amber-soft:#fff4e2;
+    --red:#b8352b;
+    --red-soft:#fdecea;
+    --purple:#6b46c1;
+    --purple-soft:#f3efff;
+    --radius:10px;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:14px;line-height:1.75;-webkit-font-smoothing:antialiased;
+  }
+  .layout{display:flex;min-height:100vh}
+  .sidebar{
+    width:236px;flex:0 0 236px;background:var(--paper);border-right:1px solid var(--line);
+    position:sticky;top:0;height:100vh;overflow-y:auto;padding:28px 16px 40px;
+  }
+  .brand{font-size:16px;font-weight:750;letter-spacing:.3px;margin:0 10px 2px}
+  .brand-sub{font-size:11px;color:var(--ink-3);margin:0 10px 20px;letter-spacing:.5px}
+  .sidebar nav a{
+    display:block;padding:7px 10px;border-radius:7px;color:var(--ink-2);
+    text-decoration:none;font-size:13px;margin:1px 0;transition:.15s;
+  }
+  .sidebar nav a:hover{background:var(--primary-soft);color:var(--primary)}
+  .sidebar nav a.top{font-weight:650;color:var(--ink);margin-top:12px}
+  .sidebar nav a.sub{padding-left:22px;font-size:12px;color:var(--ink-3)}
+  .main{flex:1;min-width:0;padding:34px 44px 80px}
+  .doc{max-width:1000px;margin:0 auto}
+  .doc-head{
+    background:linear-gradient(135deg,#2f5fd0 0%,#1f4bb0 100%);color:#fff;
+    border-radius:14px;padding:32px 36px;margin-bottom:28px;
+  }
+  .doc-head h1{margin:0 0 8px;font-size:27px;letter-spacing:.5px}
+  .doc-head p{margin:0;opacity:.9;font-size:13px}
+  .meta{display:flex;gap:26px;flex-wrap:wrap;margin-top:20px;font-size:12px}
+  .meta div span{display:block;opacity:.72;margin-bottom:2px}
+  .meta div b{font-weight:650}
+  section{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:26px 30px;margin-bottom:20px}
+  h2{
+    font-size:18px;margin:0 0 4px;padding-bottom:12px;border-bottom:2px solid var(--primary);
+    display:inline-block;letter-spacing:.3px;
+  }
+  h2 .num{color:var(--primary);margin-right:8px;font-variant-numeric:tabular-nums}
+  h3{font-size:14.5px;margin:26px 0 10px;color:var(--ink);font-weight:700}
+  h3:first-of-type{margin-top:18px}
+  h4{font-size:13px;margin:18px 0 8px;color:var(--ink-2)}
+  p{margin:8px 0}
+  ul,ol{margin:8px 0;padding-left:22px}
+  li{margin:4px 0}
+  table{width:100%;border-collapse:collapse;margin:12px 0;font-size:12.5px}
+  th{background:#f3f5f8;text-align:left;padding:9px 11px;border:1px solid var(--line);font-weight:700;color:var(--ink-2);white-space:nowrap}
+  td{padding:9px 11px;border:1px solid var(--line);vertical-align:top}
+  tbody tr:nth-child(even){background:#fbfcfd}
+  code{font-family:var(--mono);background:#f1f3f6;padding:1px 5px;border-radius:4px;font-size:11.5px;color:#2b3a55}
+  .badge{display:inline-block;padding:1px 7px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;line-height:1.6}
+  .p0{background:var(--red-soft);color:var(--red)}
+  .p1{background:var(--amber-soft);color:var(--amber)}
+  .p2{background:var(--green-soft);color:var(--green)}
+  .tag{display:inline-block;padding:1px 7px;border-radius:5px;font-size:11px;background:var(--primary-soft);color:var(--primary);font-weight:600}
+  .callout{border-left:3px solid var(--primary);background:var(--primary-soft);padding:12px 16px;border-radius:0 8px 8px 0;margin:14px 0;font-size:13px}
+  .callout.warn{border-color:var(--amber);background:var(--amber-soft)}
+  .callout.ok{border-color:var(--green);background:var(--green-soft)}
+  .figure{background:#fafbfc;border:1px solid var(--line);border-radius:10px;padding:18px;margin:18px 0;overflow-x:auto}
+  .figure figcaption{font-size:12px;color:var(--ink-3);text-align:center;margin-top:10px}
+  .figure svg{display:block;margin:0 auto;min-width:720px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .card{border:1px solid var(--line);border-radius:9px;padding:14px 16px;background:#fcfdfe}
+  .card h4{margin:0 0 6px;color:var(--primary)}
+  .card ul{margin:6px 0;padding-left:18px;font-size:12.5px}
+  .steps{counter-reset:s;list-style:none;padding:0}
+  .steps li{position:relative;padding-left:34px;margin:10px 0}
+  .steps li:before{
+    counter-increment:s;content:counter(s);position:absolute;left:0;top:1px;
+    width:23px;height:23px;border-radius:50%;background:var(--primary);color:#fff;
+    font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;
+  }
+  .chk{list-style:none;padding:0}
+  .chk li{padding-left:24px;position:relative}
+  .chk li:before{content:"☐";position:absolute;left:0;color:var(--primary);font-size:15px}
+  .small{font-size:12px;color:var(--ink-3)}
+  .divider{height:1px;background:var(--line);margin:22px 0}
+  .footer{text-align:center;color:var(--ink-3);font-size:12px;padding:20px}
+  @media(max-width:900px){
+    .sidebar{display:none}
+    .main{padding:20px 16px 60px}
+    .grid2{grid-template-columns:1fr}
+    .doc-head{padding:24px}
+  }
+  @media print{
+    body{background:#fff;font-size:11px}
+    .sidebar{display:none}
+    .main{padding:0}
+    section{break-inside:avoid;page-break-inside:avoid;border:none;padding:12px 0;margin-bottom:10px}
+    .doc-head{background:#2f5fd0 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .figure svg{min-width:0;width:100%}
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+  <div class="brand">孩子学习工作台</div>
+  <div class="brand-sub">需求方案 · v1.4</div>
+  <nav>
+    <a class="top" href="#s1">1. 项目概述</a>
+    <a class="sub" href="#s1d">1.4 默认配置基线</a>
+    <a class="sub" href="#s1e">1.5 变更记录</a>
+    <a class="sub" href="#s1f">1.6 设备侧实施基线</a>
+    <a class="sub" href="#s1f" style="padding-left:34px">1.6.1 设备自查</a>
+    <a class="sub" href="#s1g">1.7 多孩子模型</a>
+    <a class="top" href="#s2">2. 角色与权限</a>
+    <a class="top" href="#s3">3. 功能清单</a>
+    <a class="sub" href="#s3a">3.1 家长端</a>
+    <a class="sub" href="#s3b">3.2 孩子端</a>
+    <a class="sub" href="#s3c">3.3 提醒/统计/设置</a>
+    <a class="top" href="#s4">4. 核心流程</a>
+    <a class="top" href="#s5">5. 页面与模块</a>
+    <a class="top" href="#s6">6. 状态流转</a>
+    <a class="sub" href="#s6b">6.2 设备模式状态流转</a>
+    <a class="top" href="#s7">7. 数据统计</a>
+    <a class="top" href="#s8">8. 激励规则</a>
+    <a class="top" href="#s9">9. 边界情况</a>
+    <a class="top" href="#s10">10. 验收标准</a>
+  </nav>
+</aside>
+
+<main class="main"><div class="doc">
+
+<div class="doc-head">
+  <h1>孩子学习工作台 · 需求方案</h1>
+  <p>双端协同的家庭学习闭环管理：布置 → 执行 → 计时 → 提交 → 检查 → 激励 → 统计；平板端默认独占运行，退出须家长密码授权</p>
+  <div class="meta">
+    <div><span>版本</span><b>v1.4（待评审）</b></div>
+    <div><span>日期</span><b>2026-11-23</b></div>
+    <div><span>形态</span><b>家长 PC Web + 华为 Android 平板原生 App</b></div>
+    <div><span>优先级</span><b>P0 必做 / P1 增强 / P2 可选</b></div>
+  </div>
+</div>
+
+<!-- 1 -->
+<section id="s1">
+  <h2><span class="num">01</span>项目概述</h2>
+
+  <h3>1.1 背景与目标</h3>
+  <p>当前家庭学习场景中，作业与额外任务的布置、执行监督、用时记录、结果检查与奖励兑现高度依赖口头沟通与人工记忆，家长监督成本高，孩子缺乏自主管理反馈。本系统通过 PC（家长）与平板（孩子）双端协同，将上述闭环数字化。</p>
+  <p><b>核心目标：</b></p>
+  <ol>
+    <li>把「布置—执行—计时—提交—检查—激励—统计」形成可追溯的数据闭环。</li>
+    <li>降低家长监督成本：任务一次布置，进度、用时、结果自动汇总。</li>
+    <li>培养孩子自主管理能力：孩子自主选择任务、自主计时、自主提交，即时获得积分与反馈。</li>
+  </ol>
+
+  <h3>1.2 范围界定</h3>
+  <div class="grid2">
+    <div class="card"><h4>本文档覆盖</h4><ul>
+      <li>角色权限与数据边界</li>
+      <li>完整功能清单与优先级</li>
+      <li>核心流程与任务状态流转</li>
+      <li>页面/模块信息架构</li>
+      <li>统计口径与激励规则</li>
+      <li>平板独占运行与家长密码解锁</li>
+      <li>边界情况与验收标准</li>
+    </ul></div>
+    <div class="card"><h4>本文档不覆盖</h4><ul>
+      <li>技术架构与选型（前后端框架、存储、部署）</li>
+      <li>MDM 产品采购与设备批量发放流程（单台平板的 Device Owner 激活步骤见 1.6）</li>
+      <li>视觉设计稿与交互细节高保真</li>
+      <li>账号注册登录的具体实现方案</li>
+      <li>与学校教务系统的外部对接（预留扩展）</li>
+    </ul></div>
+  </div>
+
+  <h3>1.3 术语约定</h3>
+  <table>
+    <thead><tr><th style="width:130px">术语</th><th>定义</th></tr></thead>
+    <tbody>
+      <tr><td>任务</td><td>家长下发的最小执行单元，含学校作业、朗读、阅读、复习、自定义五类。</td></tr>
+      <tr><td>预计时长</td><td>家长设定的任务期望完成时间（分钟），用于到时响铃与准时率计算基准。</td></tr>
+      <tr><td>实际用时</td><td>孩子从点击「开始」到「提交」之间系统记录的有效计时时长。</td></tr>
+      <tr><td>响铃提醒</td><td>实际用时达到预计时长时，在孩子端触发的铃声/震动/视觉提醒。</td></tr>
+      <tr><td>检查与评价</td><td>家长对孩子提交结果进行通过/驳回，并给出星级与评语的动作。</td></tr>
+      <tr><td>准时率</td><td>在截止时间前提交且通过检查的任务占已完成任务的比率。</td></tr>
+      <tr><td>奖励</td><td>家长可配置的激励项，如增加平板使用时间、去商场、去公园，以积分为兑换货币。</td></tr>
+      <tr><td>独占模式</td><td>平板启动后仅允许运行本应用，系统级屏蔽切应用/Home/通知栏等出口；退出须家长授权。又称 Kiosk 模式。</td></tr>
+      <tr><td>家长解锁码</td><td>家长设置的解锁密码，仅在家长 PC 端输入并校验，孩子端不保存、不校验。</td></tr>
+      <tr><td>解锁令牌</td><td>家长验证通过后由服务端签发的一次性、短有效期凭证，孩子端凭此退出独占模式。</td></tr>
+      <tr><td>自由使用时长</td><td>兑换「增加平板使用时间」类奖励后获得的额度，在额度内可离开学习应用；用尽自动回到独占模式。</td></tr>
+    </tbody>
+  </table>
+
+  <h3 id="s1d">1.4 默认配置基线（全文唯一口径）</h3>
+  <p>下表统一收口全文所有默认值与不可变约束。8.1 / 8.2 为阅读便利复述相同数值，其余章节只引用编号、不重复定义数值；调整任一默认值时，必须同步更新本表、8.1 / 8.2 及相关验收场景，避免文档内部口径分叉。</p>
+  <table>
+    <thead><tr><th style="width:64px">编号</th><th style="width:150px">配置项</th><th>默认口径</th><th style="width:96px">是否可配置</th></tr></thead>
+    <tbody>
+      <tr><td>DEF-01</td><td>任务基础分</td><td>学校作业 20 / 朗读 10 / 阅读 15 / 复习 15 / 自定义 10</td><td>是（F1）</td></tr>
+      <tr><td>DEF-02</td><td>准时加成</td><td>+5 分（截止前提交且通过检查）</td><td>是（F1）</td></tr>
+      <tr><td>DEF-03</td><td>星级加成</td><td>1★ 0 / 2★ +2 / 3★ +4 / 4★ +6 / 5★ +8</td><td>是（F1）</td></tr>
+      <tr><td>DEF-04</td><td>逾期扣分</td><td>−5 分，单任务积分下限 0</td><td>是（F1）</td></tr>
+      <tr><td>DEF-05</td><td>连续达标加成</td><td>连续达标每满 3 天 +10 分；达标阈值＝当日完成率 ≥ 80%</td><td>是（F1 / G2）</td></tr>
+      <tr><td>DEF-06</td><td>星级阈值</td><td>周完成率 ≥95% 五星 / ≥85% 四星 / ≥70% 三星 / ≥50% 二星 / &lt;50% 一星</td><td>是（F2）</td></tr>
+      <tr><td>DEF-07</td><td>统计周期</td><td>自然周（周一 00:00 至周日 23:59，本地时区），可切日/月</td><td>是（报表）</td></tr>
+      <tr><td>DEF-08</td><td>截止前提醒</td><td>截止前 30 分钟推送一次</td><td>是（G2）</td></tr>
+      <tr><td>DEF-09</td><td>响铃提醒</td><td>达到预计时长即响铃；「1 分钟后再提醒」单任务最多 3 次</td><td>是（G2）</td></tr>
+      <tr><td>DEF-10</td><td>计时基准</td><td>服务端时间戳；不依赖平板本地时钟</td><td>否</td></tr>
+      <tr><td>DEF-11</td><td>并发任务</td><td>同一时刻最多 1 个计时中的任务</td><td>否</td></tr>
+      <tr><td>DEF-12</td><td>奖励审批</td><td>家长人工审批（配置项可改为自动通过）</td><td>是（F3）</td></tr>
+      <tr><td>DEF-13</td><td>朗读录音</td><td>默认关闭，开启需家长授权并单独确认隐私条款</td><td>是（B6）</td></tr>
+      <tr><td>DEF-14</td><td>同步延迟</td><td>发布/提交跨端可见 ≤ 3 秒</td><td>否</td></tr>
+      <tr><td>DEF-15</td><td>计时精度</td><td>≤ 1 秒/分钟；锁屏 30 分钟恢复后累计误差 ≤ 5 秒</td><td>否</td></tr>
+      <tr><td>DEF-16</td><td>触控目标</td><td>孩子端 ≥ 44×44px，核心操作单步可达</td><td>否</td></tr>
+      <tr><td>DEF-17</td><td>平板独占</td><td>默认开启；目标设备为华为 Android 平板，采用 Device Owner + Lock Task Mode；退出须家长在 PC 端输入解锁码，孩子端仅能发起申请</td><td>是（K1）</td></tr>
+      <tr><td>DEF-18</td><td>解锁尝试限制</td><td>连续输错 5 次锁定 15 分钟，并通知家长；计数在服务端</td><td>是（K1）</td></tr>
+      <tr><td>DEF-19</td><td>解锁令牌</td><td>一次性有效，默认有效期 5 分钟，过期作废并记入审计</td><td>是（K1）</td></tr>
+      <tr><td>DEF-20</td><td>自由使用额度</td><td>到期前 5 分钟提醒；到期自动回到独占模式</td><td>是（K1）</td></tr>
+      <tr><td>DEF-21</td><td>设备平台</td><td>2022 年华为平板、早期 HarmonyOS 2.x（兼容 Android APK）；<b>与不再兼容 APK 的鸿蒙 NEXT 严格区分</b>，具体型号/版本由 1.6.1 自查后登记</td><td>否</td></tr>
+      <tr><td>DEF-22</td><td>Kiosk 激活方式</td><td>单台设备：恢复出厂后未登录账号状态下通过 ADB 设置 Device Owner；批量设备：Android Enterprise 二维码 / NFC 零触摸注册</td><td>是（1.6）</td></tr>
+      <tr><td>DEF-23</td><td>任务接收人</td><td>创建任务须显式选择接收孩子，支持单选/多选/全选；未选择时禁止发布，不默认全选</td><td>否</td></tr>
+    </tbody>
+  </table>
+
+  <h3 id="s1e">1.5 变更记录</h3>
+  <table>
+    <thead><tr><th style="width:80px">版本</th><th style="width:110px">日期</th><th>变更内容</th></tr></thead>
+    <tbody>
+      <tr><td>v1.0</td><td>2026-11-23</td><td>初版：双端任务闭环、状态机、统计口径、激励规则、边界与验收。</td></tr>
+      <tr><td>v1.1</td><td>2026-11-23</td><td>① 新增 1.4 默认配置基线，统一全文默认值与不可变约束；② 新增平板独占运行、家长密码解锁、自由使用时长及配套流程/页面/状态机/验收；③ 补充系统级 Kiosk 能力依赖与降级说明。</td></tr>
+      <tr><td>v1.2</td><td>2026-11-23</td><td>设备平台确认为华为 Android 平板：新增 1.6 设备侧实施基线（Device Owner + Lock Task Mode、激活路径、按键屏蔽清单、实机验证项）；更新 DEF-17/21/22、功能清单实现依赖、边界场景与验收前置条件。</td></tr>
+      <tr><td>v1.3</td><td>2026-11-23</td><td>设备进一步确定为 2022 年华为平板、早期 HarmonyOS 2.x：澄清 HarmonyOS 2 与鸿蒙 NEXT 的区别（前者兼容 Android APK，方案不变）；新增 1.6.1 设备自查流程（开发者选项 + ADB 命令序列）；修正 HarmonyOS 相关边界与验收表述。</td></tr>
+      <tr><td>v1.4</td><td>2026-11-23</td><td>新增多孩子需求：1.7 多孩子模型与数据隔离；设备—孩子绑定与切换流程；家长端统一看板与按孩子筛选、给多孩子批量/分别布置；积分/奖励/统计按孩子隔离；新增对应边界场景与验收标准。</td></tr>
+    </tbody>
+  </table>
+
+  <h3 id="s1f">1.6 设备侧实施基线（华为 Android 平板）</h3>
+  <p>设备为 <b>2022 年华为平板、早期 HarmonyOS 2.x</b>（DEF-21），因此独占方案由"二选一"收敛为 Android 单一路径：<b>设备所有者（Device Owner）+ 锁定任务模式（Lock Task Mode / 固定屏幕）</b>。这是 Android 官方支持的专用设备能力，可持久生效、重启后保持，优于普通桌面锁、应用锁或无障碍服务。</p>
+
+  <div class="callout ok"><b>关键区分：</b>HarmonyOS 2.x 与 2024 年后的鸿蒙 NEXT 不是一回事。HarmonyOS 2.x 仍可安装和运行 Android APK，底层基于 AOSP，Android 企业 API（Device Owner / Lock Task Mode）原则上可用；只有<b>鸿蒙 NEXT</b> 才彻底不再兼容 APK、导致本方案失效。2022 年的设备属于前者，因此<b>方案不变</b>，只需按 1.6.1 自查确认。</div>
+
+  <h4>1.6.1 设备自查流程（约 5 分钟）</h4>
+  <ol class="steps">
+    <li><b>确认系统版本：</b>设置 → 关于平板 → 查看「型号」与「HarmonyOS 版本」。若显示 HarmonyOS 2.x 或 Android 10/11，继续后续步骤；若显示 HarmonyOS NEXT / 5.0 及以上且不兼容 APK，立即停止并升级方案。</li>
+    <li><b>开启开发者选项：</b>在「关于平板」中连续点击「版本号」约 7–10 次，提示已进入开发者模式后，到「设置 → 系统和更新 → 开发人员选项」开启。</li>
+    <li><b>开启 ADB：</b>在开发人员选项中打开「USB 调试」；若存在「仅充电模式下允许 ADB 调试」也一并打开。用 USB 连接电脑，平板弹出提示时选择「传输文件（MTP）」并授权本机调试。</li>
+    <li><b>关闭纯净模式：</b>设置 → 系统和更新 → 纯净模式 → 关闭，否则后续侧载安装自研 App 可能被拦截。</li>
+    <li><b>电脑端执行自查命令：</b>安装 platform-tools 后运行下列命令，把输出记录下来：</li>
+  </ol>
+<pre style="background:#f1f3f6;border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow-x:auto;font-family:var(--mono);font-size:11.5px;line-height:1.7;margin:8px 0 16px">adb devices
+adb shell getprop ro.product.model
+adb shell getprop ro.build.version.release
+adb shell getprop hw_sc.build.platform.version
+adb shell dpm device-owner</pre>
+  <ul>
+    <li><code>adb devices</code> 应显示设备为 <code>device</code> 而非 <code>unauthorized</code>；否则重新授权 USB 调试。</li>
+    <li><code>ro.build.version.release</code> 若返回 10 / 11，说明底层 AOSP 版本可用；HarmonyOS 2.x 通常仍返回 Android 基线版本。</li>
+    <li><code>dpm device-owner</code> 若提示无设备所有者，即可按 1.6.2 激活；若已存在其他 Device Owner（如厂商预置），须先恢复出厂设置。</li>
+  </ul>
+  <p class="small">此步骤只做只读查询，不改变设备状态，可在孩子当前平板上直接执行。</p>
+
+  <h4>1.6.2 前提条件与激活路径</h4>
+  <table>
+    <thead><tr><th style="width:150px">项目</th><th>要求</th></tr></thead>
+    <tbody>
+      <tr><td>系统版本</td><td>Android 5.0（API 21）以上；<b>Android 10 起强制要求应用为 Device Owner 或 Profile Owner 才能调用锁定任务</b>。目标设备为 HarmonyOS 2.x（2022 年），兼容 Android APK、底层为 AOSP，原则上具备企业 API；是否实际可用以 1.6.1 自查结果为准，不得跳过验证直接假设。若自查发现为鸿蒙 NEXT，本方案不适用。</td></tr>
+      <tr><td>单台激活 <span class="tag">推荐起步</span></td><td>设备恢复出厂、<b>不登录任何华为账号</b>状态下，USB 连接电脑执行 <code>adb shell dpm set-device-owner 包名/.DeviceAdminReceiver</code>。设备一旦存在账号则命令失败，须先恢复出厂。此操作不可通过应用内普通权限撤销。</td></tr>
+      <tr><td>批量激活 <span class="tag">P2</span></td><td>通过 Android Enterprise 专用设备（Dedicated Device）二维码 / NFC 零触摸注册，配合 MDM 下发设备所有者策略。当前单台设备无需引入 MDM。</td></tr>
+      <tr><td>锁定白名单</td><td>设备所有者应用调用 <code>setLockTaskPackages()</code> 将本应用包名加入白名单；应用启动后调用 <code>startLockTask()</code> 进入锁定，此后 Home / 最近任务 / 通知栏被系统隐藏。</td></tr>
+      <tr><td>开机自启</td><td>应用注册 <code>BOOT_COMPLETED</code> 接收器，开机后自动启动主界面并调用 <code>startLockTask()</code>；配合 <code>setKeyguardDisabled</code> 禁用锁屏、<code>setStatusBarDisabled</code> 禁用状态栏；使用沉浸式全屏布局。</td></tr>
+    </tbody>
+  </table>
+
+  <h4>1.6.3 华为定制系统需额外处理的逃逸点</h4>
+  <p>Android 原生 Lock Task 能拦截标准三键导航，但华为 HarmonyOS 2.x 的部分定制交互仍需单独验证与处理：</p>
+  <ul>
+    <li><b>手势导航：</b>上滑回桌面、侧滑返回等手势在部分厂商系统上仍可能触发；须在设置中固定为三键导航或在应用中处理返回事件。</li>
+    <li><b>物理/硬件按键：</b>部分机型返回键、最近任务键可通过硬件或组合键触发；须真机逐一验证，配合设备所有者策略禁用状态栏与锁屏。</li>
+    <li><b>智慧多窗 / 悬浮窗 / 分屏：</b>须在设备策略中禁用多窗口与悬浮窗，防止从应用内划出其他程序。</li>
+    <li><b>系统对话框与通知：</b>Lock Task 下仍可能弹出系统对话框，须用 <code>onUserLeaveHint</code> 检测并立即重新调用 <code>startLockTask()</code>。</li>
+    <li><b>应用内跳转：</b>锁定期间禁止拉起浏览器、系统设置等外部 Activity，否则会中断锁定或抛 SecurityException。</li>
+  </ul>
+
+  <h4>1.6.4 与家长端的联动</h4>
+  <ul>
+    <li><b>设备绑定：</b>激活后生成设备标识（序列号 / 应用内生成的 deviceId），在家长端 P8 绑定孩子账号；一台平板绑定一个孩子，切换须家长解锁后在 PC 端操作（见边界 23）。</li>
+    <li><b>解锁下发：</b>家长验证通过后由服务端下发一次性令牌，App 内接收并校验后主动调用 <code>stopLockTask()</code> 退出锁定；ADB 不用于日常解锁，仅用于初始激活与故障恢复。</li>
+    <li><b>状态回传：</b>App 上报 <code>isInLockTaskMode</code> 实际状态而非仅上报应用状态；若检测到被意外移除 Device Owner 或锁定失效，立即向家长推送高危告警（见边界 24）。</li>
+    <li><b>内置"健康使用平板 / 学生模式"定位：</b>可作为辅助限制，但<b>不能替代</b>本方案——它由孩子端本地设置控制，不受家长解锁令牌约束，也不提供本需求所需的任务执行与审计能力。</li>
+  </ul>
+
+  <div class="callout warn"><b>实机验证清单（进入开发前必须完成）：</b>① 目标机型与系统版本登记；② Device Owner 激活成功且 <code>dpm device-owner</code> 可查询；③ 开机后自动进入锁定态；④ Home/最近任务/通知栏/手势/分屏均无法逃逸；⑤ 家长令牌可解锁且仅一次有效；⑥ 物理电源键长按关机仍可用（安全出口）；⑦ 强制重启后自动回锁且令牌失效。任一项不通过，K7/K9 不得按 P0 真独占验收。</div>
+
+  <h3 id="s1g">1.7 多孩子模型与数据隔离</h3>
+  <p>系统按「家庭 → 孩子 → 任务执行实例」三层组织数据。一个家庭账号下可维护多个孩子档案；家长在 PC 端可切换查看任一孩子的任务、进度、统计与积分，孩子端仅能看到当前绑定孩子的任务。</p>
+  <table>
+    <thead><tr><th style="width:140px">对象</th><th>规则</th></tr></thead>
+    <tbody>
+      <tr><td>孩子档案</td><td>每个孩子有唯一 ID、姓名、昵称、年级/年龄、头像、积分账户、设备绑定关系；档案可停用不可删除（保留历史数据）。</td></tr>
+      <tr><td>任务下发</td><td>创建任务时须选择接收孩子：<b>可单选、多选或全选</b>。每个接收孩子生成独立执行实例（任务 ID + 孩子 ID 唯一），状态、计时、提交、评价、积分完全隔离。</td></tr>
+      <tr><td>多孩子看板</td><td>家长端默认展示「全部孩子」汇总视图，可按孩子筛选切换；待检查、逾期计数按孩子分列；支持一眼看到谁未完成/谁超时。</td></tr>
+      <tr><td>设备绑定</td><td>一台平板同一时刻只绑定一个孩子（主使用者）；切换孩子须家长解锁后在 PC 端操作，并记入审计。</td></tr>
+      <tr><td>数据隔离</td><td>跨孩子数据严格隔离：孩子 A 无法看到孩子 B 的任务、提交、评价、积分与奖励；家长按孩子维度统计，汇总仅做加总，不混算。</td></tr>
+      <tr><td>批量与差异化</td><td>支持一次布置给多个孩子（相同内容/时长/截止），也支持对单个孩子单独调整截止时间、奖励关联或追加备注。</td></tr>
+    </tbody>
+  </table>
+  <div class="callout"><b>默认口径：</b>任务未显式选择孩子时<b>不得默认全选</b>，须家长明确指定，避免误布置给所有孩子（见 DEF-23）。</div>
+</section>
+
+<!-- 2 -->
+<section id="s2">
+  <h2><span class="num">02</span>角色与权限</h2>
+
+  <h3>2.1 角色定义</h3>
+  <table>
+    <thead><tr><th style="width:140px">角色</th><th style="width:100px">主用端</th><th>职责定位</th></tr></thead>
+    <tbody>
+      <tr><td><b>家长（监护人）</b></td><td>PC 端</td><td>任务的创建者、规则的制定者、结果的检查评价者、奖励的审批者，<b>平板独占策略的管理者与唯一解锁授权人</b>。对全部数据拥有读写权限。</td></tr>
+      <tr><td><b>孩子（学习者）</b></td><td>平板端</td><td>任务的执行者（每个孩子有独立档案、积分账户与任务实例）。仅可查看下发给自己的已发布任务，修改执行状态与提交结果，查看自己的积分/星级/奖励，发起兑换申请与退出申请；<b>不得自行退出独占模式</b>。</td></tr>
+      <tr><td>其他监护人 <span class="tag">P2</span></td><td>PC / 平板</td><td>扩展角色，可受邀查看进度或协助检查，权限由主监护人授予，默认只读；不授予解锁授权。</td></tr>
+    </tbody>
+  </table>
+
+  <h3>2.2 权限矩阵</h3>
+  <p class="small">✓ 允许 ｜ ✗ 禁止 ｜ ◐ 受限（仅本人/仅自己下发的任务）</p>
+  <table>
+    <thead><tr><th>功能域</th><th>操作</th><th style="width:90px">家长</th><th style="width:90px">孩子</th></tr></thead>
+    <tbody>
+      <tr><td rowspan="5">任务定义</td><td>创建任务（作业/朗读/阅读/复习/自定义）</td><td>✓</td><td>✗</td></tr>
+      <tr><td>编辑任务内容、预计时长、截止时间、奖励关联</td><td>✓</td><td>✗</td></tr>
+      <tr><td>发布 / 撤回 / 删除任务</td><td>✓</td><td>✗</td></tr>
+      <tr><td>查看任务定义</td><td>✓</td><td>◐ 仅已发布给本人</td></tr>
+      <tr><td>使用任务模板 / 批量布置</td><td>✓</td><td>✗</td></tr>
+      <tr><td rowspan="5">任务执行</td><td>查看待办列表</td><td>✓</td><td>◐ 仅本人任务</td></tr>
+      <tr><td>自主选择并开始任务、计时、暂停/继续</td><td>✗</td><td>✓</td></tr>
+      <tr><td>标记完成、填写反馈、上传附件</td><td>✗</td><td>◐ 仅本人任务</td></tr>
+      <tr><td>提交结果 / 撤回提交（检查前）</td><td>✗</td><td>✓</td></tr>
+      <tr><td>查看任务进度与实际用时</td><td>✓</td><td>◐ 仅本人任务</td></tr>
+      <tr><td rowspan="4">检查评价</td><td>查看提交结果与附件</td><td>✓</td><td>◐ 仅本人提交</td></tr>
+      <tr><td>检查通过 / 驳回重做</td><td>✓</td><td>✗</td></tr>
+      <tr><td>星级、评语、标签评价</td><td>✓</td><td>✗</td></tr>
+      <tr><td>查看家长反馈</td><td>✓</td><td>◐ 仅本人任务</td></tr>
+      <tr><td rowspan="4">积分与奖励</td><td>配置积分规则与星级阈值</td><td>✓</td><td>✗</td></tr>
+      <tr><td>配置奖励目录与兑换条件</td><td>✓</td><td>✗</td></tr>
+      <tr><td>发起兑换申请</td><td>✗</td><td>✓</td></tr>
+      <tr><td>审批兑换 / 手工调整积分（留痕）</td><td>✓</td><td>✗</td></tr>
+      <tr><td rowspan="3">统计与设置</td><td>查看周/日统计报表、导出</td><td>✓</td><td>◐ 仅本人的简化视图</td></tr>
+      <tr><td>孩子档案、多孩子切换</td><td>✓</td><td>✗</td></tr>
+      <tr><td>任务下发对象选择（单人/多人/全选）</td><td>✓</td><td>✗</td></tr>
+      <tr><td>按孩子查看进度、统计、积分与奖励</td><td>✓（全部）</td><td>◐ 仅当前绑定孩子</td></tr>
+      <tr><td>平板绑定孩子 / 切换绑定</td><td>✓</td><td>✗</td></tr>
+      <tr><td>提醒方式、铃声、阈值设置</td><td>✓</td><td>◐ 仅个人偏好</td></tr>
+      <tr><td rowspan="7">设备与独占</td><td>开启/关闭独占模式、配置解锁策略</td><td>✓</td><td>✗</td></tr>
+      <tr><td>设置 / 修改 / 重置家长解锁码</td><td>✓</td><td>✗</td></tr>
+      <tr><td>发起退出申请、查看等待/拒绝状态</td><td>—</td><td>✓</td></tr>
+      <tr><td>输入解锁码审批退出、拒绝并填写原因</td><td>✓</td><td>✗</td></tr>
+      <tr><td>远程锁定 / 远程解锁、发放自由使用额度</td><td>✓</td><td>✗</td></tr>
+      <tr><td>查看解锁审计与异常尝试记录</td><td>✓</td><td>✗</td></tr>
+      <tr><td>自由使用额度内使用其他应用</td><td>✓</td><td>◐ 仅限额度内</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn"><b>权限红线：</b>孩子端不得通过任何入口修改任务元数据（内容、预计时长、截止时间、奖励关联），不得查看其他孩子的任务与评价；<b>解锁码不得下发至孩子端，密码校验只在家长 PC 端或服务端完成</b>，孩子端不得持有任何可绕过独占模式的本地入口。家长的评价与解锁操作须留痕（记录操作人、时间、变更前后值），避免争议时无据可查。</div>
+</section>
+
+<!-- 3 -->
+<section id="s3">
+  <h2><span class="num">03</span>功能清单</h2>
+
+  <h3 id="s3a">3.1 家长端（PC）</h3>
+  <table>
+    <thead><tr><th style="width:52px">编号</th><th style="width:170px">功能模块</th><th>功能说明</th><th style="width:56px">优先级</th></tr></thead>
+    <tbody>
+      <tr><td>A1</td><td>学校作业录入</td><td>录入 textual 作业描述，支持拍照/图片上传作为附件；可指定科目、班级来源备注。</td><td><span class="badge p0">P0</span></td></tr>
+      <tr><td>A2</td><td>自定义任务创建</td><td>创建朗读、阅读、复习及其他自定义类型任务，填写任务内容/要求。</td><td><span class="badge p0">P0</span></td></tr>
+      <tr><td>A3</td><td>任务字段设置</td><td>设置标题、内容、类型、预计时长（分钟）、截止日期时间、关联奖励、备注；朗读任务需填写朗读文本。</td><td><span class="badge p0">P0</span></td></tr>
+      <tr><td>A4</td><td>任务发布/撤回</td><td>支持保存草稿后择机发布；已发布未开始的任务可撤回修改；正在进行中的任务修改需二次确认。</td><td><span class="badge p0">P0</span></td></tr>
+      <tr><td>A5</td><td>任务模板与复用</td><td>将常用任务存为模板（如「每日朗读 15 分钟」），一键复用创建。</td><td><span class="badge p1">P1</span></td></tr>
+      <tr><td>A6</td><td>批量布置</td><td>一次创建多个任务并下发，适用于周末或假期计划。</td><td><span class="badge p1">P1</span></td></tr>
+      <tr><td>A7</td><td>任务列表与筛选</td><td>按状态、类型、截止时间、孩子筛选；支持搜索与排序。</td><td><span class="badge p0">P0</span></td></tr>
+      <tr><td>C1</td><td>进度看板</td><td>按状态分组查看任务：待开始/进行中/待检查/已完成/逾期；显示完成率与用时对比。</td><td><span class="badge p0">P0</span></td></tr>
+      <tr><td>C2</td><td>结果与用时核对</td><td>查看孩子提交的备注、附件、朗读完成记录；并排展示预计时长与实际用时。</td><td><span class="badge p0">P0</span></td></tr>
+      <tr><td>C3</td><td>检查通过/驳回</td><td>通过则完成任务并结算积分；驳回则填写原因，任务回到执行中要求重做。</td><td><span class="badge p0">P0</span></td></tr>
+      <tr><td>C4</td><td>评价与反馈</td><td>给出 1–5 星、评语与标签（如「专注」「需提醒」）；孩子端可见。</td><td><span class="badge p0">P0</span></td></tr>
+      <tr><td>C5</td><td>评价留痕</td><td>记录评价的创建与修改历史，含操作人、时间、变更前后值。</td><td><span class="badge p1">P1</span></td></tr>
+      <tr><td>E1–E6</td><td>统计报表</td><td>完成率、准时率、累计学习时长、任务类型分布、日/周趋势、单人报告；支持导出。</td><td><span class="badge p0">P0</span></td></tr>
+      <tr><td>F1</td><td>积分规则配置</td><td>配置各任务类型基础分、准时加成、星级加成、逾期扣分。</td><td><span class="badge p0">P0</span></td></tr>
+      <tr><td>F2</td><td>星级阈值配置</td><td>配置周完成率对应的星级区间。</td><td><span class="badge p1">P1</span></td></tr>
+      <tr><td>F3</td><td>奖励目录配置</td><td>新增/编辑奖励：名称、所需积分、说明、次数限制、有效期、审批方式。</td><td><span class="badge p0">P0</span></td></tr>
+      <tr><td>F4</td><td>兑换审批</td><td>审核孩子的兑换申请，通过则扣减积分并生成履约记录，拒绝则填写原因。</td><td><span class="badge p0">P0</span></td></tr>
+      <tr><td>F5</td><td>积分流水</td><td>查看积分获得、消费、手工调整、过期明细。</td><td><span class="badge p0">P0</span></td></tr>
+      <tr><td>G1</td><td>孩子档案</td><td>维护孩子姓名、昵称、年龄/年级、头像、积分账户；支持新增、停用、切换；档案不可删除（保留历史）。</td><td><span class="badge p0">P0</span></td></tr>
+      <tr><td>G1b</td><td>多孩子看板</td><td>家庭维度汇总 + 按孩子筛选；展示每个孩子的待办数、待检查数、逾期数、本周完成率与积分；支持横向对比。</td><td><span class="badge p0">P0</span></td></tr>
+      <tr><td>G1c</td><td>任务接收人选择</td><td>创建任务时选择接收孩子：单选 / 多选 / 全选；可为个别孩子单独调整截止时间、奖励与备注。</td><td><span class="badge p0">P0</span></td></tr>
+      <tr><td>G1d</td><td>设备与孩子绑定</td><td>将绑定设备分配给指定孩子；切换主使用者须家长解锁后在 PC 端操作，记入审计。</td><td><span class="badge p0">P0</span></td></tr>
+      <tr><td>G2</td><td>提醒设置</td><td>配置截止前提醒、逾期提醒、每日汇总提醒的时间与开关；默认值见 DEF-08 ~ DEF-09。</td><td><span class="badge p1">P1</span></td></tr>
+      <tr><td>K1</td><td>独占策略配置</td><td>开启/关闭平板独占模式（默认开启）；设置解锁码、错误尝试锁定策略、令牌有效期、额度临期提醒时间；下发至绑定设备。</td><td><span class="badge p0">P0</span></td></tr>
+      <tr><td>K2</td><td>解锁码管理</td><td>设置/修改 6 位数字解锁码；修改与重置均须家长账号二次验证，并记入审计。</td><td><span class="badge p0">P0</span></td></tr>
+      <tr><td>K3</td><td>解锁审批</td><td>接收孩子退出申请，在 PC 端输入解锁码；通过则签发一次性令牌，拒绝须填写原因。</td><td><span class="badge p0">P0</span></td></tr>
+      <tr><td>K4</td><td>远程锁定 / 解锁</td><td>家长主动远程重新锁定设备，或家长验证后远程解锁（无需孩子在端操作）。</td><td><span class="badge p1">P1</span></td></tr>
+      <tr><td>K5</td><td>自由使用额度发放</td><td>审批「增加平板使用时间」类奖励后，向设备下发自由使用额度（分钟），到期自动回锁。</td><td><span class="badge p0">P0</span></td></tr>
+      <tr><td>K6</td><td>解锁审计</td><td>查看申请/通过/拒绝/错误尝试/令牌过期/强制重启记录，含时间、设备、操作人、结果。</td><td><span class="badge p1">P1</span></td></tr>
+    </tbody>
+  </table>
+
+  <h3 id="s3b">3.2 孩子端（平板）</h3>
+  <table>
+    <thead><tr><th style="width:52px">编号</th><th style="width:170px">功能模块</th><th>功能说明</th><th style="width:56px">优先级</th></tr></thead>
+    <tbody>
+      <tr><td>B1</td><td>待办列表</td><td>按「今日 / 逾期 / 未来」分组展示任务；显示类型、截止倒计时、预计时长、关联奖励、状态；支持排序与筛选。</td><td><span class="badge p0">P0</span></td></tr>
+      <tr><td>B2</td><td>自主选择开始</td><td>孩子自由选择任一待开始任务，点击「开始」进入执行；同一时间仅允许一个任务计时。</td><td><span class="badge p0">P0</span></td></tr>
+      <tr><td>B3</td><td>计时器</td><td>正计时展示「已用 / 预计」与进度环；支持暂停/继续；切后台、锁屏不中断计时（基于时间戳）。</td><td><span class="badge p0">P0</span></td></tr>
+      <tr><td>B4</td><td>到时响铃提醒</td><td>实际用时达到预计时长时响铃 + 震动 + 视觉弹窗；支持「继续做」「现在结束」「稍后提醒」；延后时长与次数上限见 DEF-09。</td><td><span class="badge p0">P0</span></td></tr>
+      <tr><td>B5</td><td>任务内容展示</td><td>展示任务要求与附件；<b>朗读任务</b>展示全文文本，支持字号调节与自动滚动，便于跟读。</td><td><span class="badge p0">P0</span></td></tr>
+      <tr><td>B6</td><td>朗读完成记录</td><td>记录「已朗读遍数」「是否流利」「自评星级」；标记完成并提交；支持可选录音上传 <span class="tag">P2</span>。</td><td><span class="badge p0">P0</span></td></tr>
+      <tr><td>B7</td><td>阅读/复习记录</td><td>填写阅读页码/书目进度、复习要点掌握情况；上传照片作为凭证。</td><td><span class="badge p1">P1</span></td></tr>
+      <tr><td>B8</td><td>提交结果</td><td>标记完成、填写反馈/备注、上传附件后提交；检查前可撤回重新提交。</td><td><span class="badge p0">P0</span></td></tr>
+      <tr><td>B9</td><td>我的成就</td><td>查看当前积分、本周星级、连续达标天数、积分流水、历史评价。</td><td><span class="badge p1">P1</span></td></tr>
+      <tr><td>B10</td><td>奖励商城</td><td>浏览可用奖励、所需积分、发起兑换申请、查看审批状态与履约记录。</td><td><span class="badge p0">P0</span></td></tr>
+      <tr><td>B11</td><td>提醒接收</td><td>接收截止前提醒、逾期提醒、家长评价通知、兑换审批结果通知。</td><td><span class="badge p1">P1</span></td></tr>
+      <tr><td>K7</td><td>独占运行</td><td>华为 Android 平板<b>原生 App</b>：设备启动后自动全屏进入本应用；通过 Device Owner + Lock Task Mode 屏蔽 Home / 最近任务 / 通知栏 / 手势 / 分屏 / 切应用等出口；切后台或应用被杀后自动回到锁定态。实现见 1.6。</td><td><span class="badge p0">P0</span></td></tr>
+      <tr><td>K8</td><td>退出申请</td><td>孩子点击「交还平板 / 退出」后仅能发起申请并显示等待状态；<b>无本地密码输入、无直接退出入口</b>；可查看家长拒绝原因。</td><td><span class="badge p0">P0</span></td></tr>
+      <tr><td>K9</td><td>令牌校验解锁</td><td>收到家长签发的一次性解锁令牌并校验通过后退出独占模式；令牌过期或被拒绝则保持锁定。</td><td><span class="badge p0">P0</span></td></tr>
+      <tr><td>K10</td><td>自由使用模式</td><td>在发放的额度内可离开本应用；顶部常驻剩余时长，到期前 5 分钟提醒，到期自动回到独占模式；进行中的任务计时暂停且保留已用时长。</td><td><span class="badge p0">P0</span></td></tr>
+      <tr><td>K11</td><td>设备状态上报</td><td>上报锁定状态、解锁申请、强制重启/断电恢复事件；ROOT/越狱检测 <span class="tag">P2</span>。</td><td><span class="badge p1">P1</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn"><b>实现依赖（平台已确定）：</b>设备为华为 Android 平板，因此孩子端必须是<b>原生 App</b>而非浏览器页面——纯 Web 无法调用 Device Owner / Lock Task Mode，孩子在浏览器中仍可切到其他应用。K7/K9 的实现路径、激活步骤、按键逃逸处理与实机验证清单见 <b>1.6 设备侧实施基线</b>。若实机验证发现 Device Owner 不可用（如 HarmonyOS 2.x 定制限制），只能降级为「应用内锁定 + 退出需家长密码」的软件级防护，<b>家长端须明确标注防护等级并声明不能保证阻止切应用</b>，不作为防游戏逃逸的承诺。</div>
+
+  <h3 id="s3c">3.3 提醒、统计与系统设置</h3>
+  <table>
+    <thead><tr><th style="width:52px">编号</th><th style="width:170px">功能模块</th><th>功能说明</th><th style="width:56px">优先级</th></tr></thead>
+    <tbody>
+      <tr><td>D1</td><td>截止前提醒</td><td>按家长配置在截止前向孩子端推送提醒；默认 30 分钟，见 DEF-08。</td><td><span class="badge p1">P1</span></td></tr>
+      <tr><td>D2</td><td>逾期提醒与标记</td><td>到达截止时间仍未提交则自动标记逾期，双端提醒；逾期任务保留可补做。</td><td><span class="badge p0">P0</span></td></tr>
+      <tr><td>D3</td><td>每日/每周汇总</td><td>每日晚间推送未完成清单；每周一推送上周完成率与星级。</td><td><span class="badge p2">P2</span></td></tr>
+      <tr><td>G3</td><td>个人偏好</td><td>孩子可设置铃声、震动、字号、提醒开关（不改变任务规则）。</td><td><span class="badge p2">P2</span></td></tr>
+      <tr><td>G4</td><td>数据导出/备份</td><td>家长可导出任务明细、统计报表、积分流水（CSV/Excel）。</td><td><span class="badge p1">P1</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- 4 -->
+<section id="s4">
+  <h2><span class="num">04</span>核心流程</h2>
+
+  <h3>4.1 双端协作主流程</h3>
+  <div class="figure">
+    <svg viewBox="0 0 900 268" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="家长与孩子端协作流程图">
+      <defs>
+        <marker id="ar" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#718096"/></marker>
+        <marker id="arb" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#2f5fd0"/></marker>
+      </defs>
+      <rect x="0" y="18" width="900" height="100" rx="8" fill="#eef3ff"/>
+      <rect x="0" y="138" width="900" height="100" rx="8" fill="#e9f7f0"/>
+      <text x="12" y="36" font-size="12" font-weight="700" fill="#2f5fd0">家长端 · PC</text>
+      <text x="12" y="156" font-size="12" font-weight="700" fill="#1e8a5b">孩子端 · 平板</text>
+
+      <g font-size="11" fill="#1f2430" text-anchor="middle">
+        <rect x="36" y="44" width="130" height="48" rx="7" fill="#fff" stroke="#cbd2dc"/>
+        <text x="101" y="65">创建任务</text><text x="101" y="81" font-size="9" fill="#718096">内容/时长/截止/奖励</text>
+
+        <rect x="216" y="44" width="130" height="48" rx="7" fill="#fff" stroke="#cbd2dc"/>
+        <text x="281" y="65">发布任务</text><text x="281" y="81" font-size="9" fill="#718096">孩子端可见</text>
+
+        <rect x="396" y="44" width="130" height="48" rx="7" fill="#fff" stroke="#cbd2dc"/>
+        <text x="461" y="65">查看进度</text><text x="461" y="81" font-size="9" fill="#718096">状态/用时对比</text>
+
+        <rect x="576" y="44" width="130" height="48" rx="7" fill="#fff" stroke="#cbd2dc"/>
+        <text x="641" y="65">检查评价</text><text x="641" y="81" font-size="9" fill="#718096">通过/驳回/星级</text>
+
+        <rect x="756" y="44" width="130" height="48" rx="7" fill="#fff" stroke="#cbd2dc"/>
+        <text x="821" y="65">积分结算</text><text x="821" y="81" font-size="9" fill="#718096">流水留痕</text>
+
+        <rect x="36" y="164" width="130" height="48" rx="7" fill="#fff" stroke="#cbd2dc"/>
+        <text x="101" y="185">接收任务</text><text x="101" y="201" font-size="9" fill="#718096">待办列表</text>
+
+        <rect x="216" y="164" width="130" height="48" rx="7" fill="#fff" stroke="#cbd2dc"/>
+        <text x="281" y="185">选择并开始</text><text x="281" y="201" font-size="9" fill="#718096">自主决定顺序</text>
+
+        <rect x="396" y="164" width="130" height="48" rx="7" fill="#fff" stroke="#cbd2dc"/>
+        <text x="461" y="185">计时执行</text><text x="461" y="201" font-size="9" fill="#718096">到时响铃</text>
+
+        <rect x="576" y="164" width="130" height="48" rx="7" fill="#fff" stroke="#cbd2dc"/>
+        <text x="641" y="185">标记并提交</text><text x="641" y="201" font-size="9" fill="#718096">结果/反馈/附件</text>
+
+        <rect x="756" y="164" width="130" height="48" rx="7" fill="#fff" stroke="#cbd2dc"/>
+        <text x="821" y="185">查看激励</text><text x="821" y="201" font-size="9" fill="#718096">积分/兑换奖励</text>
+      </g>
+
+      <g stroke="#718096" stroke-width="1.4" fill="none" marker-end="url(#ar)">
+        <path d="M166,68 L212,68"/><path d="M346,68 L392,68"/>
+        <path d="M526,68 L572,68"/><path d="M706,68 L752,68"/>
+        <path d="M166,188 L212,188"/><path d="M346,188 L392,188"/>
+        <path d="M526,188 L572,188"/><path d="M706,188 L752,188"/>
+      </g>
+      <g stroke="#2f5fd0" stroke-width="1.6" fill="none" marker-end="url(#arb)" stroke-dasharray="4 3">
+        <path d="M281,92 L281,164"/>
+        <path d="M641,164 L641,92"/>
+        <path d="M821,164 L821,92"/>
+      </g>
+      <g font-size="9" fill="#2f5fd0">
+        <text x="288" y="132">下发</text>
+        <text x="648" y="132">提交</text>
+        <text x="786" y="132">发放</text>
+      </g>
+    </svg>
+    <figcaption>图 1　家长端与孩子端协作主流程（虚线为跨端触发）</figcaption>
+  </div>
+
+  <h3>4.2 关键子流程</h3>
+  <h4>流程 A：任务创建与下发</h4>
+  <ol class="steps">
+    <li>家长在任务中心选择任务类型：学校作业 / 朗读 / 阅读 / 复习 / 自定义。</li>
+    <li>填写标题、任务内容（朗读任务须填写全文文本）、预计时长、截止日期时间、关联奖励、备注。</li>
+    <li>选择保存为草稿或直接发布；草稿可编辑后择机发布。</li>
+    <li>发布后任务状态变为「待开始」，实时出现在孩子的待办列表中。</li>
+    <li>显式选择接收孩子（单选 / 多选 / 全选，未选择不得发布，见 DEF-23）。</li>
+    <li>任务指定多个孩子时，按孩子分别生成独立执行实例，状态、计时、提交、评价、积分互不串扰。</li>
+  </ol>
+
+  <h4>流程 B：任务执行与计时（孩子端核心）</h4>
+  <ol class="steps">
+    <li>孩子在待办列表自主选择任务，点击「开始」。</li>
+    <li>系统检查是否存在进行中的任务：若有，提示「请先完成/放弃当前任务」，保证单任务计时。</li>
+    <li>计时器启动，基于服务端时间戳记录开始时间，展示已用/预计时长与进度环；任务内容区展示要求与文本。</li>
+    <li>实际用时达到预计时长时触发响铃 + 震动 + 视觉弹窗，提供「继续做」「现在结束」「稍后提醒」（间隔与次数上限见 DEF-09）。</li>
+    <li>孩子填写结果（朗读遍数、阅读进度、复习掌握情况、备注、附件），点击「提交」。</li>
+    <li>系统记录实际用时、提交时间，状态变为「待检查」，并向家长推送待检查提醒。</li>
+  </ol>
+
+  <h4>流程 C：家长检查与评价</h4>
+  <ol class="steps">
+    <li>家长在进度看板的「待检查」分组打开任务，查看提交内容与附件、预计/实际用时对比、是否逾期。</li>
+    <li>家长选择「通过」或「驳回」。驳回须填写原因，任务回到「进行中」由孩子重做并重交。</li>
+    <li>通过后，家长给出 1–5 星与评语/标签，系统按积分规则结算积分并写入流水。</li>
+    <li>状态变为「已完成」，孩子端收到评价通知，可查看评语与所得积分。</li>
+  </ol>
+
+  <h4>流程 D：奖励兑换</h4>
+  <ol class="steps">
+    <li>孩子进入奖励商城，浏览家长配置的奖励及所需积分。</li>
+    <li>积分足够时发起兑换申请；不足时按钮禁用并提示还差多少分。</li>
+    <li>家长收到审批请求，选择通过或拒绝（拒绝须填写原因）。</li>
+    <li>通过：扣减积分、写入流水、生成履约记录；奖励类型为「增加平板使用时间」时，额外向绑定设备下发等额自由使用额度，须由家长验证解锁后生效（见流程 F）；拒绝：积分不变，通知孩子原因。</li>
+  </ol>
+
+  <h4>流程 E：逾期处理</h4>
+  <ol class="steps">
+    <li>系统按服务端时间定时扫描，到达截止时间仍未提交的任务标记为「逾期」。</li>
+    <li>双端收到逾期提醒；家长可选择：宽限（延长截止时间并通知）、取消任务、要求补做。</li>
+    <li>孩子仍可对逾期任务补做并提交，提交后状态为「待检查」，但标记「逾期完成」，不计入准时率。</li>
+  </ol>
+
+  <h4>流程 F：退出申请与家长解锁（独占模式核心）</h4>
+  <ol class="steps">
+    <li>孩子在平板端点击「交还平板 / 退出」，客户端<b>不校验任何密码</b>，仅向服务端提交退出申请，界面显示「已通知家长，请等待确认」。</li>
+    <li>家长 PC 端收到解锁请求通知（含设备、时间、孩子当前任务状态），进入「设备解锁」页。</li>
+    <li>家长输入 6 位解锁码（DEF-17）；服务端校验，连续错误达到 DEF-18 阈值则临时锁定并告警；校验通过后签发一次性令牌（DEF-19）。</li>
+    <li>服务端将令牌下发至绑定平板，孩子端校验令牌有效后立即退出独占模式；平板因网络离线无法接收时，令牌在有效期内重试投递，过期作废。</li>
+    <li>解锁结果分两种：存在自由使用额度则进入「自由使用模式」并启动倒计时；无额度则进入「家长临时解锁」，由家长设置时限或随时远程重新锁定。</li>
+    <li>家长拒绝时填写原因，孩子端保持独占并显示拒绝提示；全流程写入解锁审计（申请、审批人、结果、令牌有效期、设备标识）。</li>
+  </ol>
+
+  <h4>流程 H：多孩子任务下发与设备切换</h4>
+  <ol class="steps">
+    <li>家长在任务创建页选择接收孩子，可单选、多选或全选；未选择时「发布」按钮禁用并提示。</li>
+    <li>发布后服务端为每个接收孩子生成一条执行实例，各自独立进入状态流转。</li>
+    <li>家长在统一看板按孩子筛选查看各自进度；对个别孩子可单独调整截止时间、奖励或追加备注，调整仅作用于该孩子的实例。</li>
+    <li>平板默认绑定一个孩子。需换人使用时，孩子发起退出申请 → 家长 PC 端验证解锁 → 家长在 PC 端切换设备绑定 → 平板重新锁定并加载新孩子的待办列表。</li>
+    <li>切换后原孩子的进行中任务暂停并保留已用时长，新孩子从自己的待办开始；切换事件与解锁事件一并记入审计。</li>
+  </ol>
+
+  <h4>流程 G：自由使用额度到期回锁</h4>
+  <ol class="steps">
+    <li>进入自由使用模式时启动服务端倒计时，设备端仅展示剩余时长。</li>
+    <li>到期前 5 分钟（DEF-20）推送提醒；家长可提前远程锁定。</li>
+    <li>额度用尽，设备自动回到独占模式；若有未完成任务，其计时暂停并保留已用时长，回到学习模式后可继续。</li>
+    <li>回锁事件与额度消耗记入审计和积分/奖励履约记录，防止重复套取时长。</li>
+  </ol>
+</section>
+
+<!-- 5 -->
+<section id="s5">
+  <h2><span class="num">05</span>主要页面 / 模块</h2>
+
+  <h3>5.1 家长端页面</h3>
+  <table>
+    <thead><tr><th style="width:60px">编号</th><th style="width:150px">页面</th><th>核心要素与交互</th></tr></thead>
+    <tbody>
+      <tr><td>P1</td><td>首页 / 概览</td><td>今日任务数与完成率、待检查数量、逾期数量、累计学习时长卡片；待检查任务快捷入口；本周趋势缩略图。</td></tr>
+      <tr><td>P2</td><td>任务中心</td><td>任务列表（状态/类型/时间筛选、搜索、排序）；「新建任务」入口；行内操作：编辑、发布/撤回、删除、查看详情。</td></tr>
+      <tr><td>P3</td><td>任务创建/编辑</td><td>类型选择、内容填写（朗读文本域）、预计时长、截止时间、奖励关联、附件、孩子选择；草稿/发布双按钮。</td></tr>
+      <tr><td>P4</td><td>检查详情页</td><td>任务要求、提交结果与附件、朗读记录、预计/实际用时并排、逾期标识；通过/驳回、星级与评语表单。</td></tr>
+      <tr><td>P5</td><td>统计报表</td><td>周期切换（日/周/月）、完成率、准时率、累计时长、类型分布图、趋势图、孩子筛选、导出按钮。</td></tr>
+      <tr><td>P6</td><td>积分与奖励设置</td><td>积分规则表（按类型基础分/加成/扣分）、星级阈值、奖励目录 CRUD、兑换审批队列、积分流水。</td></tr>
+      <tr><td>P7</td><td>孩子档案与设置</td><td>孩子列表与档案维护、提醒设置、评价历史、数据导出。</td></tr>
+      <tr><td>P8</td><td>设备与独占管理</td><td>绑定设备列表与防护等级标识；独占开关、解锁码设置/重置、错误锁定与令牌策略；自由使用额度余额与发放；远程锁定/解锁按钮；解锁审计入口。</td></tr>
+      <tr><td>P9</td><td>家长验证 / 解锁页</td><td>待处理退出申请列表与详情；6 位解锁码输入、错误次数与锁定提示；拒绝原因填写；签发的令牌状态与有效期倒计时；一键远程锁定。</td></tr>
+    </tbody>
+  </table>
+
+  <h3>5.2 孩子端页面</h3>
+  <table>
+    <thead><tr><th style="width:60px">编号</th><th style="width:150px">页面</th><th>核心要素与交互</th></tr></thead>
+    <tbody>
+      <tr><td>C1</td><td>今日任务（首页）</td><td>顶部积分/星级/连续天数概览；「今日 / 逾期 / 未来」分组待办卡片；卡片显示类型图标、截止倒计时、预计时长、关联奖励。</td></tr>
+      <tr><td>C2</td><td>任务执行页</td><td>计时进度环（已用/预计）、开始/暂停/结束按钮；任务内容与附件区；朗读文本展示（字号调节、自动滚动）；响铃弹窗。</td></tr>
+      <tr><td>C3</td><td>结果提交页</td><td>按类型动态表单（朗读遍数/自评、阅读进度、复习掌握度）、备注、附件上传、标记完成并提交；检查前可撤回。</td></tr>
+      <tr><td>C4</td><td>我的成就</td><td>当前积分、本周星级、连续达标天数、积分流水、获得的评价与评语。</td></tr>
+      <tr><td>C5</td><td>奖励商城</td><td>奖励卡片列表、所需积分、兑换按钮、兑换记录与审批状态；积分不足提示。</td></tr>
+      <tr><td>C6</td><td>独占锁定态</td><td>全屏运行，无系统出口；顶部常驻「学习模式 · 由家长管理」与「交还平板」按钮；不展示任何密码输入框与设置入口。</td></tr>
+      <tr><td>C7</td><td>退出申请 / 等待页</td><td>申请已发送提示、等待状态、家长拒绝原因；无本地解锁操作；提供「返回任务」按钮。</td></tr>
+      <tr><td>C8</td><td>自由使用模式</td><td>剩余时长倒计时常驻、到期前 5 分钟提醒、家长远程锁定提示；到期自动回锁并提示未完成任务已暂停。</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout"><b>体验约束：</b>孩子端面向平板，触控目标不小于 44×44px，主操作（开始/提交）单步可达；计时页避免频繁弹窗打断，响铃提醒次数上限见 DEF-09；独占锁定态须保证「开始 / 提交 / 交还平板」三个按钮单步可达，且不得出现可触发系统设置的控件。</div>
+</section>
+
+<!-- 6 -->
+<section id="s6">
+  <h2><span class="num">06</span>任务状态流转</h2>
+  <p>任务全生命周期共 9 个状态。状态机是计时、提醒、统计与积分结算的共同基础，所有模块须以状态为准，不得用布尔标志旁路。</p>
+  <div class="figure">
+    <svg viewBox="0 0 900 316" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="任务状态流转图">
+      <defs>
+        <marker id="ar2" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#718096"/></marker>
+        <marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#b8352b"/></marker>
+      </defs>
+      <g font-size="11" text-anchor="middle">
+        <rect x="30" y="40" width="118" height="48" rx="24" fill="#f1f3f6" stroke="#cbd2dc"/>
+        <text x="89" y="69" fill="#4a5568">草稿</text>
+        <rect x="205" y="40" width="118" height="48" rx="24" fill="#eef3ff" stroke="#2f5fd0"/>
+        <text x="264" y="69" fill="#2f5fd0" font-weight="700">待开始</text>
+        <rect x="380" y="40" width="118" height="48" rx="24" fill="#fff4e2" stroke="#b47411"/>
+        <text x="439" y="69" fill="#b47411" font-weight="700">进行中</text>
+        <rect x="555" y="40" width="118" height="48" rx="24" fill="#f3efff" stroke="#6b46c1"/>
+        <text x="614" y="69" fill="#6b46c1" font-weight="700">待检查</text>
+        <rect x="730" y="40" width="118" height="48" rx="24" fill="#e9f7f0" stroke="#1e8a5b"/>
+        <text x="789" y="69" fill="#1e8a5b" font-weight="700">已完成</text>
+
+        <rect x="205" y="190" width="118" height="48" rx="24" fill="#fdecea" stroke="#b8352b"/>
+        <text x="264" y="219" fill="#b8352b" font-weight="700">逾期</text>
+        <rect x="555" y="190" width="118" height="48" rx="24" fill="#f1f3f6" stroke="#cbd2dc"/>
+        <text x="614" y="219" fill="#4a5568">已取消</text>
+      </g>
+      <g stroke="#718096" stroke-width="1.5" fill="none" marker-end="url(#ar2)">
+        <path d="M148,64 L201,64"/>
+        <path d="M323,64 L376,64"/>
+        <path d="M498,64 L551,64"/>
+        <path d="M673,64 L726,64"/>
+        <path d="M264,88 L264,186"/>
+        <path d="M439,88 L439,214 L551,214"/>
+      </g>
+      <g stroke="#b8352b" stroke-width="1.5" fill="none" marker-end="url(#arr)" stroke-dasharray="5 3">
+        <path d="M614,88 L614,130 L439,130 L439,92"/>
+        <path d="M323,238 L323,288 L700,288 L700,64 L677,64"/>
+      </g>
+      <g font-size="9.5" fill="#4a5568">
+        <text x="150" y="56">发布</text>
+        <text x="325" y="56">开始</text>
+        <text x="500" y="56">提交</text>
+        <text x="675" y="56">通过</text>
+        <text x="271" y="140">到期未完成</text>
+        <text x="450" y="208">家长取消</text>
+      </g>
+      <g font-size="9.5" fill="#b8352b">
+        <text x="508" y="123">驳回重做</text>
+        <text x="470" y="281">逾期补交</text>
+      </g>
+    </svg>
+    <figcaption>图 2　任务状态流转（红色虚线为逆向/异常流转）</figcaption>
+  </div>
+
+  <table>
+    <thead><tr><th style="width:100px">状态</th><th style="width:190px">进入条件</th><th>允许操作</th></tr></thead>
+    <tbody>
+      <tr><td>草稿</td><td>家长创建未发布</td><td>家长编辑、发布、删除</td></tr>
+      <tr><td>待开始</td><td>家长发布；驳回后重交前</td><td>孩子查看、开始；家长撤回/编辑（二次确认）</td></tr>
+      <tr><td>进行中</td><td>孩子点击开始；驳回重做</td><td>孩子计时、暂停/继续、提交；家长查看进度</td></tr>
+      <tr><td>待检查</td><td>孩子提交；逾期补交</td><td>家长通过/驳回；孩子在检查前可撤回重交</td></tr>
+      <tr><td>已完成</td><td>家长检查通过</td><td>只读；积分已结算；可查看评价</td></tr>
+      <tr><td>逾期</td><td>到达截止时间仍未提交</td><td>孩子补做提交；家长宽限/取消/要求补做</td></tr>
+      <tr><td>已取消</td><td>家长主动取消或撤回</td><td>只读；不计入统计分母</td></tr>
+    </tbody>
+  </table>
+  <div class="callout warn"><b>规则约束：</b>状态流转由服务端统一校验，禁止前端直接改写。只有「待检查 → 已完成」触发积分结算，驳回不结算、撤回不重复结算。</div>
+
+  <h3 id="s6b">6.2 设备模式状态流转</h3>
+  <p>设备模式与任务状态相互独立：任务状态描述"任务做到哪一步"，设备模式描述"平板允许做什么"。设备默认处于「学习锁定」，只有家长验证通过才能切换，且任何模式下家长均可远程强制回到锁定态。</p>
+  <div class="figure">
+    <svg viewBox="0 0 900 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="设备模式状态流转图">
+      <defs>
+        <marker id="arm" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#718096"/></marker>
+        <marker id="arg" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#1e8a5b"/></marker>
+      </defs>
+      <rect x="40" y="55" width="190" height="60" rx="10" fill="#eef3ff" stroke="#2f5fd0" stroke-width="1.6"/>
+      <text x="135" y="88" font-size="12" font-weight="700" fill="#2f5fd0" text-anchor="middle">学习锁定（默认）</text>
+      <rect x="440" y="25" width="190" height="60" rx="10" fill="#e9f7f0" stroke="#1e8a5b" stroke-width="1.6"/>
+      <text x="535" y="58" font-size="12" font-weight="700" fill="#1e8a5b" text-anchor="middle">自由使用（额度内）</text>
+      <rect x="440" y="160" width="190" height="60" rx="10" fill="#fff4e2" stroke="#b47411" stroke-width="1.6"/>
+      <text x="535" y="193" font-size="12" font-weight="700" fill="#b47411" text-anchor="middle">家长临时解锁</text>
+
+      <g stroke="#1e8a5b" stroke-width="1.6" fill="none" marker-end="url(#arg)">
+        <path d="M230,70 L330,70 L330,55 L436,55"/>
+        <path d="M230,95 L340,95 L340,190 L436,190"/>
+      </g>
+      <g stroke="#718096" stroke-width="1.5" fill="none" marker-end="url(#arm)">
+        <path d="M450,85 L400,85 L400,105 L234,105"/>
+        <path d="M535,220 L535,242 L135,242 L135,119"/>
+      </g>
+      <g font-size="10" fill="#1e8a5b">
+        <text x="248" y="64">家长验证通过 + 有额度</text>
+        <text x="248" y="180">家长验证通过 + 无额度</text>
+      </g>
+      <g font-size="10" fill="#4a5568">
+        <text x="288" y="100">额度耗尽</text>
+        <text x="320" y="237">到期 / 家长远程重新锁定</text>
+      </g>
+      <text x="700" y="70" font-size="10" fill="#718096">任何模式下家长均可远程锁定 → 学习锁定</text>
+      <text x="700" y="90" font-size="10" fill="#718096">设备重启后默认回到学习锁定</text>
+    </svg>
+    <figcaption>图 3　设备模式状态流转（绿色＝家长授权进入，灰色＝自动/强制回锁）</figcaption>
+  </div>
+  <table>
+    <thead><tr><th style="width:150px">模式</th><th style="width:200px">进入条件</th><th>设备行为</th></tr></thead>
+    <tbody>
+      <tr><td>学习锁定（默认）</td><td>设备启动；家长远程锁定；额度到期；临时解锁到期</td><td>全屏运行本应用，系统出口屏蔽；仅可开始/执行/提交任务与发起退出申请。</td></tr>
+      <tr><td>自由使用（额度内）</td><td>家长验证通过且设备存在自由使用额度</td><td>可离开本应用使用其他程序；倒计时常驻；临期提醒；到期自动回锁。</td></tr>
+      <tr><td>家长临时解锁</td><td>家长验证通过但无额度，家长设定时限</td><td>允许临时离开，时限由家长指定；到期或家长远程锁定后立即回锁。</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- 7 -->
+<section id="s7">
+  <h2><span class="num">07</span>数据统计</h2>
+  <p>统计以自然周（周一 00:00 至周日 23:59，本地时区）为默认周期，支持按日/周/月切换；统计分母自动排除「已取消」任务与未到期任务。<b>所有指标均可按孩子维度查看，家庭汇总为孩子数据的加总，不混算。</b></p>
+
+  <h3>7.1 指标定义</h3>
+  <table>
+    <thead><tr><th style="width:130px">指标</th><th>计算口径</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td><b>完成率</b></td><td>周期内状态为「已完成」的任务数 ÷ 周期内应完成任务数 × 100%</td><td>应完成 = 已到期（截止时间 ≤ 统计期末）且未取消的任务。</td></tr>
+      <tr><td><b>准时率</b></td><td>截止时间前提交且检查通过的任务数 ÷ 已完成任务数 × 100%</td><td>逾期补交并通过的任务计入已完成，但不计入准时。</td></tr>
+      <tr><td><b>累计学习时长</b></td><td>Σ 已完成任务的「实际用时」（分钟）</td><td>进行中任务不计入；暂停时长不计入。</td></tr>
+      <tr><td><b>任务类型分布</b></td><td>各类型任务数占比 / 各类型时长占比</td><td>提供数量与时长两种视图，环形图呈现。</td></tr>
+      <tr><td>平均用时偏差</td><td>Σ(实际用时 − 预计时长) ÷ 已完成数</td><td>正值表示整体超时，辅助家长校准预计时长。</td></tr>
+      <tr><td>驳回率 <span class="tag">P1</span></td><td>发生过驳回的已完成任务数 ÷ 已完成任务数 × 100%</td><td>反映任务质量与孩子执行质量。</td></tr>
+      <tr><td>连续达标天数 <span class="tag">P1</span></td><td>连续「当日完成率 ≥ 目标值」的天数</td><td>达标阈值见 DEF-05，由家长配置。</td></tr>
+      <tr><td>解锁申请次数 / 通过率 <span class="tag">P1</span></td><td>周期内申请次数；家长通过数 ÷ 申请总数 × 100%</td><td>异常频繁申请反映孩子逃避学习的倾向，供家长关注。</td></tr>
+      <tr><td>自由使用时长 <span class="tag">P1</span></td><td>Σ 周期内实际消耗的自由使用额度（分钟）</td><td>与奖励履约记录对账，防止额度超发。</td></tr>
+      <tr><td>异常尝试次数 <span class="tag">P1</span></td><td>密码连续错误、令牌过期、强制重启次数</td><td>设备侧安全事件统计，异常升高时提醒家长检查设备。</td></tr>
+    </tbody>
+  </table>
+
+  <h3>7.2 报表视图</h3>
+  <ul>
+    <li><b>概览卡片：</b>完成率、准时率、累计学习时长、平均用时偏差，与上一周期对比涨跌。</li>
+    <li><b>趋势图：</b>按日/周展示完成数与学习时长折线。</li>
+    <li><b>类型分布：</b>环形图，可按任务数量或时长切换。</li>
+    <li><b>孩子单人报告：</b>按孩子维度生成周期性小结，含星级、评语摘要、积分变化；支持多孩子横向对比。</li>
+    <li><b>设备与解锁审计：</b>解锁申请/通过/拒绝/异常尝试时间线、自由使用额度发放与消耗、强制重启事件。</li>
+    <li><b>导出：</b>任务明细与汇总指标导出为 CSV / Excel，含统计口径说明。</li>
+  </ul>
+  <div class="callout ok"><b>口径一致性：</b>完成率、准时率、累计时长三者在「概览卡片」「趋势图」「导出文件」中必须使用同一套计算逻辑，建议服务端统一计算后下发，避免前端二次计算导致口径分叉。</div>
+</section>
+
+<!-- 8 -->
+<section id="s8">
+  <h2><span class="num">08</span>激励规则</h2>
+
+  <h3>8.1 积分规则</h3>
+  <p class="small">以下为默认基线（DEF-01 ~ DEF-05），家长可在 F1 中调整；调整后须同步更新 1.4 基线与 10.2 验收场景。</p>
+  <table>
+    <thead><tr><th>项目</th><th>规则</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td>任务基础分</td><td>学校作业 20 / 朗读 10 / 阅读 15 / 复习 15 / 自定义 10</td><td>检查通过后发放。</td></tr>
+      <tr><td>准时加成</td><td>+5 分</td><td>截止时间前提交且通过检查。</td></tr>
+      <tr><td>星级加成</td><td>1★ 0 / 2★ +2 / 3★ +4 / 4★ +6 / 5★ +8</td><td>按家长检查星级。</td></tr>
+      <tr><td>逾期扣分</td><td>−5 分</td><td>逾期补交并通过时执行；任务积分下限为 0，不产生负分。</td></tr>
+      <tr><td>连续达标加成</td><td>连续达标每满 3 天 +10 分</td><td>达标阈值见 DEF-05，由家长配置。</td></tr>
+      <tr><td>手工调整</td><td>家长可 ±N 分</td><td>必须填写原因，计入流水，家长端可见调整记录。</td></tr>
+    </tbody>
+  </table>
+  <p class="small">积分计算公式：<code>任务得分 = max(0, 基础分 + 准时加成 + 星级加成 − 逾期扣分)</code>；连续达标加成按周期末统一结算。</p>
+
+  <h3>8.2 星级评定</h3>
+  <p class="small">阈值基线见 DEF-06，家长可在 F2 中调整。</p>
+  <table>
+    <thead><tr><th>周完成率</th><th>星级</th><th>周完成率</th><th>星级</th></tr></thead>
+    <tbody>
+      <tr><td>≥ 95%</td><td>★★★★★</td><td>≥ 70% 且 &lt; 85%</td><td>★★★☆☆</td></tr>
+      <tr><td>≥ 85% 且 &lt; 95%</td><td>★★★★☆</td><td>≥ 50% 且 &lt; 70%</td><td>★★☆☆☆</td></tr>
+      <tr><td>&lt; 50%</td><td>★☆☆☆☆</td><td>—</td><td>—</td></tr>
+    </tbody>
+  </table>
+
+  <h3>8.3 奖励配置与兑换</h3>
+  <table>
+    <thead><tr><th style="width:140px">配置项</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td>奖励名称/说明</td><td>如「增加平板使用时间 30 分钟」「去商场」「去公园」。</td></tr>
+      <tr><td>所需积分</td><td>兑换门槛，家长自定。</td></tr>
+      <tr><td>次数限制</td><td>每日/每周上限，或总量上限，防止过度兑换。</td></tr>
+      <tr><td>有效期</td><td>奖励上架/下架时间，过期自动隐藏。</td></tr>
+      <tr><td>审批方式</td><td>自动通过（积分足够即扣减）或家长人工审批（默认）。</td></tr>
+      <tr><td>履约记录</td><td>审批通过后生成，记录奖励、时间、积分扣减与发放的自由使用额度。</td></tr>
+      <tr><td><b>与独占模式联动</b></td><td><b>平板时长类奖励审批通过后不自动解锁</b>：家长发放自由使用额度 → 家长在 PC 端输入解锁码验证 → 设备进入自由使用模式 → 额度用尽自动回锁。孩子不得自行兑换即获解锁，防止绕过家长管控。</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn"><b>防刷分与防套取约束：</b>同一任务仅结算一次积分；驳回后重交不重复发放基础分，仅在最终通过时按最终结果结算；兑换申请提交后至审批完成前，对应积分冻结，避免重复消费；自由使用额度按奖励履约记录逐笔发放与核销，同一履约记录不得重复下发，解锁审计中额度发放与消耗须可逐笔对账。</div>
+</section>
+
+<!-- 9 -->
+<section id="s9">
+  <h2><span class="num">09</span>边界情况</h2>
+  <table>
+    <thead><tr><th style="width:44px">#</th><th style="width:180px">场景</th><th>处理策略</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>跨午夜/跨天任务</td><td>截止时间按本地时区记录；计时跨午夜时，实际用时整体计入「开始日」的统计，任务列表在次日仍显示直至完成；统计口径在报表中注明。</td></tr>
+      <tr><td>2</td><td>平板设备时间不准</td><td>所有时间与计时以服务端时间为准；孩子端启动时校验本地与服务端时间差并展示校正后时间，差异超过阈值提示家长检查设备。</td></tr>
+      <tr><td>3</td><td>平板离线 / 网络抖动</td><td>待办列表与计时状态本地缓存；离线期间可继续计时与填写结果，恢复网络后自动同步。冲突时以服务端状态为准并提示孩子。</td></tr>
+      <tr><td>4</td><td>切后台 / 锁屏 / 杀进程</td><td>计时基于「开始时间戳 + 累计暂停时长」计算，不依赖 UI 定时器；进程恢复后按服务端时间重算并校正显示。</td></tr>
+      <tr><td>5</td><td>重复提交 / 重复点击</td><td>提交接口幂等（以任务执行实例 ID + 提交序号去重）；重复提交提示已提交，不产生第二条流水。</td></tr>
+      <tr><td>6</td><td>执行中家长修改任务</td><td>修改预计时长或内容须二次确认，并向孩子端推送变更通知；已产生的用时记录保留，预计时长变更影响后续响铃与统计。</td></tr>
+      <tr><td>7</td><td>多孩子 / 多任务实例</td><td>任务须显式指定接收孩子（DEF-23），按孩子分别生成执行实例；进度、用时、积分、评价、奖励与统计严格隔离；家长汇总仅做加总，不混算。</td></tr>
+      <tr><td>8</td><td>逾期任务处理</td><td>逾期不自动删除或关闭；孩子可补做提交，标记「逾期完成」，计入完成率但不计入准时率；家长可宽限、取消或要求补做。</td></tr>
+      <tr><td>9</td><td>响铃被静音 / 免打扰</td><td>铃声之外提供震动与全屏视觉提醒兜底；提示孩子端关闭系统免打扰；同一任务提醒次数上限可配置。</td></tr>
+      <tr><td>10</td><td>积分不足 / 兑换被拒</td><td>不足时兑换按钮禁用并提示差额；被拒时积分不扣减、冻结释放，向孩子展示拒绝原因。</td></tr>
+      <tr><td>11</td><td>朗读录音 <span class="tag">P2</span></td><td>录音默认关闭，开启需家长授权；涉及未成年人语音，须明确本地存储范围、保留期限与删除入口。</td></tr>
+      <tr><td>12</td><td>并发评价</td><td>多家长同时评价同一任务时，服务端加锁；后写覆盖并保留双方历史记录，避免积分重复结算。</td></tr>
+      <tr><td>13</td><td>任务被删除</td><td>原则上不允许删除已有执行记录的任务；仅允许「取消」并保留快照，以保证统计与积分流水可追溯。</td></tr>
+      <tr><td>14</td><td>时区与夏令时</td><td>统一使用用户所在本地时区；截止时间保存为带时区时间戳，避免 DST 切换导致偏差。</td></tr>
+      <tr><td>15</td><td><b>孩子暴力尝试解锁</b></td><td>解锁码只在家长 PC 端/服务端校验，孩子端不保存也不校验；连续输错达 DEF-18 阈值后锁定 15 分钟并通知家长；计数与锁定状态存于服务端，孩子端重置无效。</td></tr>
+      <tr><td>16</td><td>家长忘记解锁码</td><td>家长通过 PC 端账号二次验证（密码/邮箱/预留问题）重置，重置操作记入审计并通知其绑定邮箱；孩子端无重置入口。</td></tr>
+      <tr><td>17</td><td>网络离线无法解锁</td><td>孩子端不提供任何本地绕过路径，显示「无法联系家长，请保持联网」；家长端恢复网络后可远程解锁。建议提供家长预生成的一次性应急码 <span class="tag">P2</span>，仅限断网时使用且用后作废。</td></tr>
+      <tr><td>18</td><td><b>华为平板 Device Owner 不可用</b></td><td>纯 Web 无法阻止切应用；2022 年 HarmonyOS 2.x 若实机自查发现 Device Owner 激活失败，降级为软件级锁定，家长端明确标注「软件级，不保证阻止切应用」，不得承诺完全防逃逸。若设备实为鸿蒙 NEXT（不兼容 APK），原生 App 方案整体失效，须重新评估设备。华为自带「健康使用平板 / 学生模式」不作为替代方案。</td></tr>
+      <tr><td>19</td><td>系统手势 / Home / 通知栏 / 关机</td><td>由系统级 Kiosk 策略屏蔽；<b>必须保留至少一个物理紧急出口</b>（如长按电源键关机）以保障人身安全，强制关机/重启事件上报家长并记入审计。</td></tr>
+      <tr><td>20</td><td>设备重启 / 应用被杀</td><td>配置开机自启，重启后自动回到学习锁定态；未消费的解锁令牌立即失效；重启事件与时长消耗上报家长。</td></tr>
+      <tr><td>21</td><td>自由使用额度到期</td><td>到期前 5 分钟提醒；到期自动回锁；进行中任务暂停计时并保留已用时长，回到学习模式后可继续；不产生逾期判定。</td></tr>
+      <tr><td>22</td><td><b>奖励与独占冲突</b></td><td>兑换「增加平板使用时间」仅获得额度，不等于解锁；须家长验证后生效，额度用尽自动回锁。孩子端不得显示「兑换后立即解锁」的误导文案。</td></tr>
+      <tr><td>23</td><td>多孩子共用一台平板</td><td>一台设备同一时刻仅绑定一个孩子；切换须家长解锁后在 PC 端操作并记入审计；原孩子进行中任务暂停并保留已用时长，新孩子加载自己的待办；切换过程不得泄露另一孩子的任务、评价或积分。</td></tr>
+      <tr><td>25</td><td>多孩子数据串扰</td><td>所有查询接口强制带孩子 ID 过滤；家长按孩子维度统计，孩子端只返回当前绑定孩子数据；跨孩子访问请求一律拒绝并记录安全事件。</td></tr>
+      <tr><td>26</td><td>任务未选接收人</td><td>未显式选择孩子时禁止发布（DEF-23），防止误布置给全部孩子；草稿可保存但不得下发。</td></tr>
+      <tr><td>24</td><td>ROOT / 越狱检测 <span class="tag">P2</span></td><td>检测到设备被 ROOT/越狱或 Kiosk 策略失效时，立即上报家长并尝试自动重新锁定；无法重新锁定时向家长推送高危告警。</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- 10 -->
+<section id="s10">
+  <h2><span class="num">10</span>验收标准</h2>
+
+  <h3>10.1 功能验收清单</h3>
+  <h4>家长端</h4>
+  <ul class="chk">
+    <li>可创建五类任务并填写标题、内容、预计时长、截止时间、奖励关联；朗读任务可填写全文文本。</li>
+    <li>草稿可保存并择机发布；发布后孩子端在 3 秒内可见；待开始任务可撤回修改。</li>
+    <li>进度看板按 5 种状态分组，显示状态、预计/实际用时、是否逾期。</li>
+    <li>可打开待检查任务查看提交结果与附件，执行通过/驳回（驳回须填原因）。</li>
+    <li>通过后给出 1–5 星与评语，积分按规则结算并写入流水；重复点击不重复结算。</li>
+    <li>统计报表可按日/周/月查看完成率、准时率、累计时长、类型分布，并可导出。</li>
+    <li>可配置积分规则、星级阈值、奖励目录；可审批兑换，通过扣积分、拒绝不扣分。</li>
+    <li>可开启/关闭独占模式、设置与重置解锁码、配置错误锁定与令牌策略。</li>
+    <li>可接收孩子退出申请并在 PC 端输入解锁码审批；通过后签发一次性令牌，拒绝须填原因。</li>
+    <li>可发放自由使用额度、远程锁定/解锁，并可查看解锁审计与异常尝试记录。</li>
+  </ul>
+  <h4>孩子端（含独占模式）</h4>
+  <ul class="chk">
+    <li>待办列表按今日/逾期/未来分组，显示类型、截止倒计时、预计时长、关联奖励。</li>
+    <li>可自主选择任务并开始；已有进行中任务时阻止开启第二个并提示。</li>
+    <li>计时准确展示已用/预计时长；切后台、锁屏后计时不中断。</li>
+    <li>达到预计时长时触发响铃 + 震动 + 视觉提醒，三种操作（继续/结束/稍后）均可用。</li>
+    <li>朗读任务展示全文文本，可调节字号；可记录朗读遍数、自评并标记完成。</li>
+    <li>可填写反馈、上传附件并提交；检查前可撤回重新提交。</li>
+    <li>可查看积分、星级、连续天数、积分流水、家长评价；可发起兑换并查看审批状态。</li>
+    <li>启动后自动进入独占锁定态，系统 Home / 最近任务 / 通知栏 / 切应用出口不可用。</li>
+    <li>点击退出仅能发起申请并显示等待状态；端内不存在密码输入框、设置入口或任何直接退出路径。</li>
+    <li>仅在收到有效一次性令牌时退出独占；令牌过期、被拒绝或无网络时保持锁定。</li>
+    <li>自由使用额度内显示倒计时，到期前 5 分钟提醒，到期自动回锁且未完成任务计时暂停并保留已用时长。</li>
+  </ul>
+
+  <h3>10.2 关键场景验收（Given / When / Then）</h3>
+  <table>
+    <thead><tr><th style="width:150px">场景</th><th>验收条件</th></tr></thead>
+    <tbody>
+      <tr><td>准时完成结算</td><td><b>Given</b> 家长发布朗读任务（预计 20 分钟，截止 18:00，基础分 10，见 DEF-01）<br><b>When</b> 孩子 17:50 提交，家长给 5 星并通过<br><b>Then</b> 状态=已完成，积分 = 10 + 5（DEF-02）+ 8（DEF-03 的 5★）= 23，流水 1 条，准时率计入分子</td></tr>
+      <tr><td>逾期补交</td><td><b>Given</b> 任务截止 18:00 未提交<br><b>When</b> 18:30 系统扫描并标记逾期，孩子 19:00 补交并通过<br><b>Then</b> 状态=已完成且标记逾期完成，积分扣 5 分（下限 0），完成率计入、准时率不计入</td></tr>
+      <tr><td>驳回重做</td><td><b>Given</b> 孩子已提交、状态待检查<br><b>When</b> 家长驳回并填原因<br><b>Then</b> 状态回到进行中，孩子收到原因，最终通过时积分仅结算一次</td></tr>
+      <tr><td>到时响铃</td><td><b>Given</b> 预计时长 15 分钟，孩子已开始计时<br><b>When</b> 实际用时达到 15:00<br><b>Then</b> 3 秒内触发铃声、震动与视觉弹窗，选择「1 分钟后再提醒」后 60 秒再次触发</td></tr>
+      <tr><td>兑换审批</td><td><b>Given</b> 孩子积分 100，奖励「去公园」需 80 分<br><b>When</b> 孩子发起兑换，积分冻结 80，家长通过<br><b>Then</b> 余额变 20，生成履约记录与流水；若拒绝则余额仍 100、冻结释放</td></tr>
+      <tr><td>离线恢复</td><td><b>Given</b> 孩子端在执行中离线 10 分钟<br><b>When</b> 恢复网络<br><b>Then</b> 实际用时与服务端时间一致，提交成功，无重复记录</td></tr>
+      <tr><td>家长验证解锁</td><td><b>Given</b> 平板处于学习锁定态，孩子发起退出申请且有 30 分钟自由额度<br><b>When</b> 家长在 PC 端输入正确解锁码<br><b>Then</b> 服务端签发一次性令牌并下发，平板进入自由使用模式并开始 30 分钟倒计时，审计记录申请人与审批人</td></tr>
+      <tr><td>无额度临时解锁</td><td><b>Given</b> 平板锁定且孩子无自由使用额度<br><b>When</b> 家长验证通过并设定临时解锁 20 分钟<br><b>Then</b> 进入家长临时解锁态，20 分钟后自动回锁；家长可提前远程锁定</td></tr>
+      <tr><td>暴力尝试与锁定</td><td><b>Given</b> 解锁码校验仅在家长端/服务端<br><b>When</b> 连续输错 5 次（DEF-18）<br><b>Then</b> 服务端锁定 15 分钟并通知家长，孩子端重试与重置均无效，审计记录 5 次失败</td></tr>
+      <tr><td>奖励兑换不直接解锁</td><td><b>Given</b> 孩子兑换「增加平板使用时间 30 分钟」并获家长审批通过<br><b>When</b> 孩子未获家长解锁验证<br><b>Then</b> 平板仍保持学习锁定，仅额度余额增加；须家长验证后才进入自由使用模式</td></tr>
+      <tr><td>令牌过期 / 设备离线</td><td><b>Given</b> 家长签发令牌（DEF-19，5 分钟有效），此时平板离线<br><b>When</b> 超过 5 分钟后恢复网络<br><b>Then</b> 令牌作废，平板保持锁定，家长需重新验证签发；审计记录过期事件</td></tr>
+      <tr><td>额度到期回锁</td><td><b>Given</b> 自由使用额度剩 5 分钟，且有已开始未提交的任务<br><b>When</b> 额度归零<br><b>Then</b> 提前 5 分钟已提醒，设备自动回锁，任务计时暂停且已用时长保留，回到学习模式后可继续，不判逾期</td></tr>
+      <tr><td>华为平板激活与开机自启</td><td><b>Given</b> 华为 Android 平板已恢复出厂且未登录账号，已通过 ADB 设置 Device Owner<br><b>When</b> 设备重启完成开机<br><b>Then</b> App 自动启动并调用 Lock Task，进入学习锁定态；<code>dpm device-owner</code> 可查询到本应用，白名单仍存在</td></tr>
+      <tr><td>华为手势/按键逃逸</td><td><b>Given</b> 设备处于 Lock Task 锁定态<br><b>When</b> 孩子尝试上滑回桌面、侧滑返回、分屏、下拉通知栏、硬件返回键<br><b>Then</b> 均无法离开本应用；若出现系统对话框导致短暂离开，<code>onUserLeaveHint</code> 立即重新锁定并上报事件</td></tr>
+      <tr><td>系统级能力降级</td><td><b>Given</b> 2022 年华为平板实机自查发现 Device Owner 不可用<br><b>When</b> 家长打开设备设置页<br><b>Then</b> 防护等级标识为「软件级，不保证阻止切应用」，并向家长明示无法真正独占</td></tr>
+      <tr><td>鸿蒙版本不兼容</td><td><b>Given</b> 自查发现设备为鸿蒙 NEXT 而非 HarmonyOS 2.x，无法安装 Android APK<br><b>When</b> 进入实施阶段<br><b>Then</b> 立即停止本方案实施并升级评估，不得将软件级降级当作解决方案交付</td></tr>
+      <tr><td>多孩子任务下发</td><td><b>Given</b> 家庭下有两个孩子 A、B，家长创建朗读任务并选择两人<br><b>When</b> 家长发布任务<br><b>Then</b> 生成两条独立执行实例；A 完成后 B 仍为待开始；家长看板按孩子分列显示各自状态，积分分别入账</td></tr>
+      <tr><td>未选接收人</td><td><b>Given</b> 家长新建任务但未选择任何孩子<br><b>When</b> 点击发布<br><b>Then</b> 发布被阻止并提示选择接收人；草稿可保存但不得下发（DEF-23）</td></tr>
+      <tr><td>设备切换孩子</td><td><b>Given</b> 平板绑定孩子 A，A 有一项进行中任务<br><b>When</b> 家长解锁后在 PC 端切换绑定至孩子 B<br><b>Then</b> A 的任务暂停并保留已用时长，平板加载 B 的待办；A 的任务/评价/积分对 B 不可见；切换事件记入审计</td></tr>
+    </tbody>
+  </table>
+
+  <h3>10.3 数据准确性验收</h3>
+  <ul class="chk">
+    <li>完成率、准时率、累计学习时长在概览卡片、趋势图、导出文件中数值一致。</li>
+    <li>统计分母自动排除已取消与未到期任务，周期边界按本地时区计算。</li>
+    <li>积分流水与账户余额严格对账：收入 − 支出 = 当前余额。</li>
+    <li>所有状态变更、评价修改、积分手工调整均有可追溯日志（操作人、时间、前后值）。</li>
+    <li>解锁审计与设备事件日志完整：申请、审批人、结果、令牌有效期、强制重启均留痕。</li>
+    <li>自由使用额度发放与消耗逐笔对账：发放总额 − 已消耗 − 剩余 = 0，且与奖励履约记录一致。</li>
+  </ul>
+
+  <h3>10.4 体验与性能验收</h3>
+  <ul class="chk">
+    <li>计时显示误差 ≤ 1 秒 / 分钟；锁屏 30 分钟后恢复，累计用时误差 ≤ 5 秒。</li>
+    <li>家长发布任务到孩子端可见延迟 ≤ 3 秒；孩子提交到家长待检查列表可见延迟 ≤ 3 秒。</li>
+    <li>孩子端平板连续操作 30 分钟无卡死；触控目标 ≥ 44×44px；核心操作单步可达。</li>
+    <li>多孩子、多任务并行场景下，进度、积分、评价、奖励与统计数据互不串扰。</li>
+    <li>任务未选择接收孩子时发布按钮禁用；选择多个孩子后各生成独立实例且互不可见。</li>
+    <li>切换设备绑定后，平板仅显示新孩子的任务，原孩子数据不出现在任何孩子端页面。</li>
+    <li>PC 端主流浏览器（Chrome / Edge）与平板主流浏览器兼容；关键页面支持 1280px 及以上分辨率。</li>
+    <li>目标华为平板已完成 Device Owner 激活，<code>isDeviceOwnerApp</code> 与 <code>isInLockTaskMode</code> 均为 true；1.6 实机验证清单 7 项全部通过。</li>
+    <li>设备关机/重启后 30 秒内自动回到学习锁定态；令牌过期后无法解锁。</li>
+    <li>家长审批通过到平板实际解锁 ≤ 5 秒（在线状态）；远程锁定指令到设备回锁 ≤ 5 秒。</li>
+    <li>强制重启 / Kiosk 策略失效事件上报家长延迟 ≤ 1 分钟。</li>
+  </ul>
+
+  <div class="callout warn"><b>前置条件：</b>独占模式的 P0 验收以目标华为 Android 平板完成 Device Owner 激活 + Lock Task Mode 白名单配置，且通过 1.6 实机验证清单全部 7 项为前提。设备侧配置未完成、1.6.1 自查未通过或 1.6 实机验证清单未全部通过前，K7/K9 只能按软件级降级验收，且必须向家长明示防护等级；若设备为鸿蒙 NEXT，则不得降级交付，须先更换设备。</div>
+
+  <div class="callout ok"><b>验收通过定义：</b>10.1 全部满足、10.2 全部场景通过、10.3 数据零差异、10.4 无阻塞级问题（P0 缺陷为 0），方可进入试运行。P1/P2 功能可分批上线，不影响 P0 主闭环验收；<b>独占模式与其设备侧前置条件属于 P0，不得因设备配置困难而降级交付</b>。</div>
+</section>
+
+<div class="footer">孩子学习工作台需求方案 · v1.4 · 2026-11-23 · 待评审</div>
+
+</div></main>
+</div>
+</body>
+</html>
