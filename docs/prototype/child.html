@@ -161,6 +161,11 @@ textarea{width:100%;border:1px solid var(--line);border-radius:9px;padding:11px;
             <div class="meta"><span>预计 <b>10 分钟</b></span><span>截止 <b>明日 19:00</b></span><span>奖励 <b>+10分</b></span></div>
             <button class="btn primary" style="width:100%;margin-top:6px">开始任务</button>
           </div>
+          <div class="task" onclick="go('dd')">
+            <div class="top"><div class="title">英语作业 · 钉钉打卡</div><span class="badge b-blue">钉钉打卡</span></div>
+            <div class="meta"><span>预计 <b>10 分钟</b></span><span>截止 <b>今日 20:00</b></span><span>奖励 <b>+15分</b></span></div>
+            <button class="btn primary" style="width:100%;margin-top:6px">↗ 去钉钉打卡</button>
+          </div>
         </div>
 
         <div class="section-title">已完成 <div class="line"></div></div>
@@ -193,6 +198,34 @@ textarea{width:100%;border:1px solid var(--line);border-radius:9px;padding:11px;
             <div class="formrow"><label>已朗读遍数</label><button class="btn ghost" onclick="toast('已记录第 1 遍')">第 1 遍</button><button class="btn ghost" onclick="toast('已记录第 2 遍')">第 2 遍</button><button class="btn ghost" onclick="toast('已记录第 3 遍')">第 3 遍</button></div>
             <div class="formrow"><label>流利度自评</label><span class="starbtn" onclick="toast('自评 4 星')">★★★★<span style="color:#d7dde6">★</span></span></div>
             <div class="formrow"><label>我的反馈</label><textarea placeholder="今天读得怎么样？有什么想告诉家长的？"></textarea></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="page" id="dd">
+        <div class="exec">
+          <h2>钉钉打卡 · 英语作业</h2>
+          <div class="sub">学校要求在钉钉内完成 · 截止 20:00 · 完成可得 +15 分</div>
+          <div class="note">你仍处于家长管控的学习模式。只有钉钉被允许打开，其他应用无法启动；打卡完成后请回到这里。</div>
+          <div class="timer-card" style="margin-top:14px">
+            <div class="ring"><div class="in"><b>09:12</b><span>已用 / 10:00</span></div></div>
+            <div class="timer-info">
+              <h3>准备好就去钉钉打卡</h3>
+              <p>在钉钉里完成老师要求的内容，并对打卡成功页面截图作为凭证。</p>
+              <p style="color:var(--primary);font-weight:700">钉钉内最多停留 10 分钟，到时会自动回到这里</p>
+              <div class="timer-actions">
+                <button class="btn primary" onclick="showModal('ding')">↗ 去钉钉打卡</button>
+                <button class="btn green" onclick="showModal('submit')">✓ 我已打卡，提交</button>
+              </div>
+            </div>
+          </div>
+          <div class="content-card">
+            <h3>打卡要求与凭证</h3>
+            <div class="formrow"><label>学校 / 班级</label><span>三年级 2 班 · 英语</span></div>
+            <div class="formrow"><label>打卡内容</label><span>朗读 Unit 5 课文并在钉钉提交打卡</span></div>
+            <div class="formrow"><label>打卡凭证</label><button class="btn ghost" onclick="toast('已选择打卡截图.jpg')">＋ 上传打卡截图</button></div>
+            <div class="formrow"><label>我的反馈</label><textarea placeholder="打卡是否顺利？有什么想告诉家长的？"></textarea></div>
+            <div class="note">系统无法直接读取钉钉的打卡结果，家长会在检查时核对你上传的截图并确认。</div>
           </div>
         </div>
       </div>
@@ -268,9 +301,14 @@ function showModal(type){
     small.textContent='提示：响铃后继续做不会扣分，按实际用时记录';
   }else if(type==='submit'){
     icon.textContent='✓';title.textContent='提交任务结果';
-    text.innerHTML='确认完成「语文朗读《秋天的雨》」吗？提交后家长将收到检查提醒。';
+    text.innerHTML='确认完成当前任务吗？提交后家长将收到检查提醒。';
     body.innerHTML='<div style="display:flex;gap:10px;justify-content:center"><button class="btn ghost" onclick="hideModal()">再检查一下</button><button class="btn green" onclick="hideModal();toast(\'已提交，等待家长检查\')">确认提交</button></div>';
     small.textContent='家长检查通过后积分才会到账';
+  }else if(type==='ding'){
+    icon.textContent='↗';title.textContent='前往钉钉完成打卡';
+    text.innerHTML='即将打开钉钉，你仍处于<b>家长管控的学习模式</b>。其他应用无法打开；打卡后请按 Home 键回到这里。';
+    body.innerHTML='<div style="display:flex;gap:10px;justify-content:center"><button class="btn ghost" onclick="hideModal()">再等一下</button><button class="btn primary" onclick="hideModal();toast(\'已打开钉钉 · 最多停留10分钟\')">打开钉钉</button></div>';
+    small.textContent='停留超过 10 分钟会自动回到学习工作台';
   }else if(type==='exit'){
     icon.textContent='🔒';title.textContent='需要家长确认';
     text.innerHTML='退出学习模式必须由家长在电脑上输入密码。你的申请已发送给家长，请等待确认。';

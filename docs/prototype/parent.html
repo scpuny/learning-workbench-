@@ -198,11 +198,12 @@ td{padding:11px 8px;border-bottom:1px solid #f0f2f5;vertical-align:middle}
         <div class="panel">
           <h3>基础信息</h3>
           <div class="field"><label>任务类型</label>
-            <select><option>学校作业</option><option selected>朗读</option><option>阅读</option><option>复习</option><option>自定义</option></select>
+            <select><option>学校作业</option><option selected>朗读</option><option>阅读</option><option>复习</option><option>钉钉打卡</option><option>自定义</option></select>
           </div>
           <div class="field"><label>任务标题</label><input value="语文朗读《秋天的雨》"></div>
           <div class="field"><label>任务内容 / 要求</label><textarea rows="3">朗读课文第 2-4 自然段，注意停顿与感情，至少朗读 3 遍</textarea></div>
           <div class="field"><label>朗读文本</label><textarea rows="4">秋天的雨，是一把钥匙。它带着清凉和温柔，轻轻地，轻轻地，趁你没留意，把秋天的大门打开了……</textarea><div class="hint">朗读任务专属字段：孩子端将展示全文并支持字号调节</div></div>
+          <div class="field"><label>钉钉打卡专属</label><input placeholder="学校 / 班级来源，如：三年级2班英语"><div class="hint">打卡在钉钉内完成，系统只做受控跳转、限时、留痕与凭证确认</div></div>
           <div class="field"><label>预计时长（分钟）</label><input type="number" value="15"></div>
           <div class="field"><label>截止时间</label><input type="datetime-local" value="2026-11-23T18:00"></div>
         </div>
@@ -233,14 +234,15 @@ td{padding:11px 8px;border-bottom:1px solid #f0f2f5;vertical-align:middle}
       <div class="panel review">
         <div class="left">
           <div style="display:flex;gap:8px;margin-bottom:14px">
-            <button class="btn sm primary">语文朗读《秋天的雨》</button><button class="btn sm">数学口算练习</button><button class="btn sm">英语绘本阅读</button>
+            <button class="btn sm primary">语文朗读《秋天的雨》</button><button class="btn sm">数学口算练习</button><button class="btn sm">英语绘本阅读</button><button class="btn sm" onclick="toast('已切换至钉钉打卡凭证')">钉钉打卡 · 英语</button>
           </div>
           <div class="note">孩子：小满 · 提交时间 17:42 · 预计 15 分钟 / 实际 14 分钟 <span class="badge b-green">准时</span></div>
           <h4 style="font-size:13px;margin:16px 0 8px">孩子提交内容</h4>
           <div style="border:1px solid var(--line);border-radius:8px;padding:14px;line-height:2">
             朗读遍数：<b>3 遍</b>　流利度自评：<b>★★★★☆</b><br>
             备注：第三遍比第一遍流利，有个别句子停顿不够自然。<br>
-            附件：<span class="badge b-blue">朗读记录.txt</span> <span class="badge b-blue">课文照片.jpg</span>
+            附件：<span class="badge b-blue">朗读记录.txt</span> <span class="badge b-blue">课文照片.jpg</span><br>
+            <span style="color:var(--primary);font-weight:700">钉钉打卡凭证（示意）：</span><span class="badge b-blue">打卡截图.jpg</span> <span class="badge b-amber">家长确认：待确认</span>
           </div>
           <h4 style="font-size:13px;margin:18px 0 8px">评价</h4>
           <div style="margin-bottom:10px">星级：<span class="stars" style="font-size:20px">★★★★★</span></div>
@@ -248,6 +250,7 @@ td{padding:11px 8px;border-bottom:1px solid #f0f2f5;vertical-align:middle}
           <div class="chkgrid" style="margin-bottom:16px">
             <label class="on"><input type="checkbox" checked> 专注</label><label><input type="checkbox"> 有进步</label><label><input type="checkbox"> 需提醒</label>
           </div>
+          <button class="btn" onclick="toast('已人工确认钉钉打卡结果')">确认打卡结果</button>
           <button class="btn primary" onclick="toast('已通过，积分已结算')">通过并结算积分</button>
           <button class="btn danger" onclick="toast('已驳回，任务回到进行中')" style="margin-left:8px">驳回重做</button>
         </div>
@@ -348,6 +351,8 @@ td{padding:11px 8px;border-bottom:1px solid #f0f2f5;vertical-align:middle}
             防护等级 <span class="badge b-blue">系统级 · Lock Task</span><br>
             解锁码 <b>6 位数字</b> · 连续错误 5 次锁定 15 分钟<br>
             令牌有效期 <b>5 分钟</b> · 一次性有效<br>
+            Lock Task 白名单 <b>学习工作台 + 钉钉</b> <span class="badge b-blue">受控放行</span><br>
+            钉钉前台停留上限 <b>10 分钟</b> · 到时自动拉回<br>
             自由使用到期提醒 <b>提前 5 分钟</b>
           </div>
           <button class="btn" style="margin-top:12px" onclick="toast('进入解锁码修改流程（需二次验证）')">修改解锁码</button>
